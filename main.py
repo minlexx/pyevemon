@@ -44,7 +44,7 @@ def main():
         script = sys.executable
         logger.debug('Frozen! Running as embedded python DLL, {}'.format(script))
     else:
-        script = __file__
+        script = os.path.abspath(__file__)
         logger.debug('Not Frozen, running under pure python, {}'.format(script))
 
     # set current directory to script executable path
