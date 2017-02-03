@@ -41,19 +41,28 @@ class ApitestMainWindow(QWidget):
         self._edit_result = QPlainTextEdit(self)
         self._edit_result.setReadOnly(True)
 
+        # buttons
+        self._btn_exec_call = QPushButton('Execute call', self)
+        self._btn_exec_call.clicked.connect(self.on_click_execute_call)
+
         # layouts
-        self._layout_top = QHBoxLayout()
-        self._layout_top.addWidget(self._lbl_api_method)
-        self._layout_top.addWidget(self._cmb_api)
-        self._layout_top.addWidget(self._lbl_keyid)
-        self._layout_top.addWidget(self._edit_keyid)
-        self._layout_top.addWidget(self._lbl_vcode)
-        self._layout_top.addWidget(self._edit_vcode)
+        self._layout_top1 = QHBoxLayout()
+        self._layout_top1.addWidget(self._lbl_api_method)
+        self._layout_top1.addWidget(self._cmb_api)
+        self._layout_top1.addStretch()
+        self._layout_top1.addWidget(self._btn_exec_call)
+
+        self._layout_top2 = QHBoxLayout()
+        self._layout_top2.addWidget(self._lbl_keyid)
+        self._layout_top2.addWidget(self._edit_keyid)
+        self._layout_top2.addWidget(self._lbl_vcode)
+        self._layout_top2.addWidget(self._edit_vcode)
 
         self._layout_bot = QHBoxLayout()
         self._layout_bot.addWidget(self._edit_result)
 
-        self._layout.addLayout(self._layout_top, 0)
+        self._layout.addLayout(self._layout_top1, 0)
+        self._layout.addLayout(self._layout_top2, 0)
         self._layout.addLayout(self._layout_bot, 1)
 
         self.show()
@@ -63,3 +72,9 @@ class ApitestMainWindow(QWidget):
         self.logger.debug('ApitestMainWindow.closeEvent()')
         self.mainwindow.apitmw = None
         close_event.accept()
+
+    @pyqtSlot(bool)
+    def on_click_execute_call(self, checked: bool):
+        self.logger.debug('on_click_execute_call')
+        pass
+
