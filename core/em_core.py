@@ -6,7 +6,7 @@ import core.evedata
 import core.savedata
 
 
-_g_evemoncore_instance = None
+_g_emcore_instance = None
 
 
 class EmCore:
@@ -17,7 +17,7 @@ class EmCore:
 
 
 def get_core_instance() -> EmCore:
-    global _g_evemoncore_instance
-    if _g_evemoncore_instance is None:
-        _g_evemoncore_instance = EmCore()
-    return _g_evemoncore_instance
+    global _g_emcore_instance
+    if _g_emcore_instance is None:
+        _g_emcore_instance = EmCore()
+    return _g_emcore_instance
