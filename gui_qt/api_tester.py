@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
     QPushButton, QVBoxLayout, QHBoxLayout, QPlainTextEdit
 
 from core.logger import get_logger
-from core.evemon import get_evemon_instance
+from core.em_core import get_core_instance
 
 
 class ApitestMainWindow(QWidget):

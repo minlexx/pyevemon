@@ -6,16 +6,16 @@ from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QMenuBar, QMenu, QAction, QMainWindow
 
 from core.logger import get_logger
-from core.evemon import get_evemon_instance
+from core.em_core import get_core_instance
 
 from .api_tester import ApitestMainWindow
 
 
-class PYEVEMonMainWindow(QMainWindow):
+class QtEmMainWindow(QMainWindow):
     def __init__(self):
-        super(PYEVEMonMainWindow, self).__init__(parent=None)
+        super(QtEmMainWindow, self).__init__(parent=None)
         self.logger = get_logger(__name__, logging.DEBUG)
-        self.evemon = get_evemon_instance()
+        self.evemon = get_core_instance()
         self.logger.debug('Constructed window!')
 
         self.setMinimumSize(400, 300)

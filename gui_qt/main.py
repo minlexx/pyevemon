@@ -30,7 +30,7 @@ def start_gui():
     # print(app.applicationName(), app.applicationDirPath(), app.applicationPid())
     # print(app.applicationDisplayName(), app.applicationVersion())
 
-    mainwindow = gui_qt.mainwindow.PYEVEMonMainWindow()
+    mainwindow = gui_qt.mainwindow.QtEmMainWindow()
     mainwindow.show()
 
     return app.exec_()

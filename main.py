@@ -9,7 +9,7 @@ import sys
 # Local imports
 import version
 import core.logger
-import core.evemon
+import core.em_core
 
 
 # def custom_unhandled_handler_func(bound_param, exc_type, exc_value, exc_traceback):
@@ -53,7 +53,7 @@ def main():
     os.chdir(scriptdir)
 
     # pre-initialize core
-    core.evemon.get_evemon_instance()
+    core.em_core.get_core_instance()
 
     mainret = 0
     if args.gui == 'qt':
