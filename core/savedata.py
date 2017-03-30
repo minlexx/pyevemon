@@ -18,7 +18,7 @@ class SaveData:
         self._logger.info('SaveData: SQLAlchemy version: {}'.format(sqlalchemy.__version__))
         #
         # SQL Alchemy objects
-        self.sql_engine = sqlalchemy.create_engine('sqlite:///'+self.user_settings_file, echo=True)
+        self.sql_engine = sqlalchemy.create_engine('sqlite:///'+self.user_settings_file, echo=False)
         core.models.EmModelBase.metadata.create_all(self.sql_engine)
         # sqlalchemy session
         session_class = sqlalchemy.orm.sessionmaker(bind=self.sql_engine)
