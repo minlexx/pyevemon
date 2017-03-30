@@ -26,5 +26,12 @@ class EMApiKey(EmModelBase, EmAutoTableAndIdMixin):
         self.keyid = keyid
         self.vcode = vcode
 
+    def is_valid(self):
+        if len(self.keyid) != 7:
+            return False
+        if len(self.vcode) != 64:
+            return False
+        return True
+
     def __str__(self):
         return 'ApiKey({}, {})'.format(self.keyid, self.vcode)
