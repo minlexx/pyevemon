@@ -129,6 +129,16 @@ class ApitestMainWindow(QWidget):
             api_result = acc.key_info()
             self.fill_result(api_result)
 
+        elif apicall == 'account/AccountStatus':
+            acc = evelink.account.Account(api=self.emcore.api)
+            api_result = acc.status()
+            self.fill_result(api_result)
+
+        elif apicall == 'account/Characters':
+            acc = evelink.account.Account(api=self.emcore.api)
+            api_result = acc.characters()
+            self.fill_result(api_result)
+
     @pyqtSlot(bool)
     def on_click_add_new_apikey(self, checked: bool):
         # self._logger.debug('on_click_add_new_apikey')
