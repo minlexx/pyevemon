@@ -13,8 +13,8 @@ from core.em_core import get_core_instance
 class ApitestMainWindow(QWidget):
     def __init__(self, parent: QWidget = None):
         super(ApitestMainWindow, self).__init__(parent=parent)
-        self.logger = get_logger(__name__, logging.DEBUG)
-        self.logger.debug('Constructed window!')
+        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger.debug('Constructed window!')
         self.mainwindow = None
 
         self.setMinimumSize(640, 480)
@@ -69,12 +69,12 @@ class ApitestMainWindow(QWidget):
 
     # void MainWindow::closeEvent(QCloseEvent * event)
     def closeEvent(self, close_event: QCloseEvent):
-        self.logger.debug('ApitestMainWindow.closeEvent()')
+        self._logger.debug('ApitestMainWindow.closeEvent()')
         self.mainwindow.apitmw = None
         close_event.accept()
 
     @pyqtSlot(bool)
     def on_click_execute_call(self, checked: bool):
-        self.logger.debug('on_click_execute_call')
+        self._logger.debug('on_click_execute_call')
         pass
 

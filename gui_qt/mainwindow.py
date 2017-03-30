@@ -14,9 +14,9 @@ from .api_tester import ApitestMainWindow
 class QtEmMainWindow(QMainWindow):
     def __init__(self):
         super(QtEmMainWindow, self).__init__(parent=None)
-        self.logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__, logging.DEBUG)
         self.evemon = get_core_instance()
-        self.logger.debug('Constructed window!')
+        self._logger.debug('Constructed window!')
 
         self.setMinimumSize(400, 300)
         self.icon = QIcon('img/pyevemon.png')
@@ -34,7 +34,7 @@ class QtEmMainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_action_api_tester(self, checked: bool = False):
-        # self.logger.debug('on_action_api_tester(): checked = {}'.format(checked))
+        # self._logger.debug('on_action_api_tester(): checked = {}'.format(checked))
         if self.apitmw is None:
             self.apitmw = ApitestMainWindow()
             self.apitmw.mainwindow = self

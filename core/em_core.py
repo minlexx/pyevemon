@@ -12,7 +12,7 @@ _g_emcore_instance = None
 
 class EmCore:
     def __init__(self):
-        self.logger = core.logger.get_logger(__name__, logging.DEBUG)
+        self._logger = core.logger.get_logger(__name__, logging.DEBUG)
         self.savedata = core.savedata.SaveData()
         self.evedata = core.evedata.EVEData()
         self.cache = core.em_cache.EmCache()
