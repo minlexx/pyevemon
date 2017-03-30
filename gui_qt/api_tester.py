@@ -126,7 +126,7 @@ class ApitestMainWindow(QWidget):
     @pyqtSlot(int)
     def on_change_selected_apikey(self, idx: int):
         keyid = self._cmb_apikey.currentText()
-        self._logger.debug('idx: {}; keyid: {}'.format(idx, keyid))
+        # self._logger.debug('idx: {}; keyid: {}'.format(idx, keyid))
         for apikey in self.api_keys:
             if apikey.keyid == keyid:
                 self._edit_keyid.setText(keyid)
