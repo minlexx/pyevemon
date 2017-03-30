@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
 
 from core.logger import get_logger
 from core.em_core import get_core_instance
+from core.models import EMApiKey
 
 
 class ApitestMainWindow(QWidget):
@@ -16,6 +17,8 @@ class ApitestMainWindow(QWidget):
         self._logger = get_logger(__name__, logging.DEBUG)
         self._logger.debug('Constructed window!')
         self.mainwindow = None
+        self.emcore = get_core_instance()
+        self.api_keys = []
 
         self.setMinimumSize(640, 480)
         self.icon = QIcon('img/pyevemon.png')
@@ -29,10 +32,14 @@ class ApitestMainWindow(QWidget):
         self._lbl_api_method = QLabel('API call:', self)
         self._lbl_keyid = QLabel('keyID:', self)
         self._lbl_vcode = QLabel('vCode:', self)
+        self._lbl_api_key = QLabel('Select API key:', self)
 
         # combos
-        self._cmb_api = QComboBox(self)
-        self._cmb_api.setMinimumWidth(200)
+        self._cmb_apicall = QComboBox(self)
+        self._cmb_apicall.setMinimumWidth(200)
+        self._cmb_apikey = QComboBox(self)
+        self._cmb_apikey.setMinimumWidth(150)
+        self._cmb_apikey.currentIndexChanged.connect(self.on_change_selected_apikey)
 
         # edits
         self._edit_keyid = QLineEdit(self)
@@ -44,11 +51,15 @@ class ApitestMainWindow(QWidget):
         # buttons
         self._btn_exec_call = QPushButton('Execute call', self)
         self._btn_exec_call.clicked.connect(self.on_click_execute_call)
+        self._btn_add_new_apikey = QPushButton('Add new key', self)
+        self._btn_add_new_apikey.clicked.connect(self.on_click_add_new_apikey)
 
         # layouts
         self._layout_top1 = QHBoxLayout()
         self._layout_top1.addWidget(self._lbl_api_method)
-        self._layout_top1.addWidget(self._cmb_api)
+        self._layout_top1.addWidget(self._cmb_apicall)
+        self._layout_top1.addWidget(self._lbl_api_key)
+        self._layout_top1.addWidget(self._cmb_apikey)
         self._layout_top1.addStretch()
         self._layout_top1.addWidget(self._btn_exec_call)
 
@@ -57,6 +68,7 @@ class ApitestMainWindow(QWidget):
         self._layout_top2.addWidget(self._edit_keyid)
         self._layout_top2.addWidget(self._lbl_vcode)
         self._layout_top2.addWidget(self._edit_vcode)
+        self._layout_top2.addWidget(self._btn_add_new_apikey)
 
         self._layout_bot = QHBoxLayout()
         self._layout_bot.addWidget(self._edit_result)
@@ -64,6 +76,8 @@ class ApitestMainWindow(QWidget):
         self._layout.addLayout(self._layout_top1, 0)
         self._layout.addLayout(self._layout_top2, 0)
         self._layout.addLayout(self._layout_bot, 1)
+
+        self.fill_data()
 
         self.show()
 
@@ -73,8 +87,47 @@ class ApitestMainWindow(QWidget):
         self.mainwindow.apitmw = None
         close_event.accept()
 
+    def fill_apikeys(self):
+        self._cmb_apikey.clear()
+        self.api_keys = self.emcore.savedata.get_apikeys()
+        for api_key in self.api_keys:
+            self._cmb_apikey.addItem(api_key.keyid)
+
+    def fill_data(self):
+        # API calls
+        self._cmb_apicall.clear()
+        self._cmb_apicall.addItem('account/APIKeyInfo')
+        self._cmb_apicall.addItem('account/AccountStatus')
+        self._cmb_apicall.addItem('account/Characters')
+        # API keys
+        self.fill_apikeys()
+
     @pyqtSlot(bool)
     def on_click_execute_call(self, checked: bool):
         self._logger.debug('on_click_execute_call')
         pass
 
+    @pyqtSlot(bool)
+    def on_click_add_new_apikey(self, checked: bool):
+        self._logger.debug('on_click_add_new_apikey')
+        keyid = self._edit_keyid.text()
+        vcode = self._edit_vcode.text()
+        if (keyid == '') or (vcode == ''):
+            self._logger.debug('keyid or vcode empty!')
+            return
+        apikey = EMApiKey(keyid, vcode)
+        if apikey.is_valid():
+            self.emcore.savedata.store_apikey(apikey)
+            # reload existing api keys
+            self.fill_apikeys()
+        else:
+            self._logger.error('Invalid input data for apikey: {}'.format(apikey))
+
+    @pyqtSlot(int)
+    def on_change_selected_apikey(self, idx: int):
+        keyid = self._cmb_apikey.currentText()
+        self._logger.debug('idx: {}; keyid: {}'.format(idx, keyid))
+        for apikey in self.api_keys:
+            if apikey.keyid == keyid:
+                self._edit_keyid.setText(keyid)
+                self._edit_vcode.setText(apikey.vcode)
