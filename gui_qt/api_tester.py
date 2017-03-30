@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
 
 from PyQt5.QtGui import QGuiApplication, QIcon, QCloseEvent
@@ -9,6 +10,9 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
 from core.logger import get_logger
 from core.em_core import get_core_instance
 from core.models import EMApiKey
+
+import evelink.api
+import evelink.account
 
 
 class ApitestMainWindow(QWidget):
@@ -102,14 +106,32 @@ class ApitestMainWindow(QWidget):
         # API keys
         self.fill_apikeys()
 
+    def fill_result(self, result: evelink.api.APIResult):
+        if result.result is not None:
+            self._edit_result.clear()
+            as_json = json.dumps(result.result, indent=4)
+            self._edit_result.setPlainText(as_json)
+
     @pyqtSlot(bool)
     def on_click_execute_call(self, checked: bool):
-        self._logger.debug('on_click_execute_call')
-        pass
+        # self._logger.debug('on_click_execute_call')
+        apicall = self._cmb_apicall.currentText()
+        self._logger.debug('Api call: {}'.format(apicall))
+
+        keyid = self._edit_keyid.text()
+        vcode = self._edit_vcode.text()
+        current_apikey = EMApiKey(keyid, vcode)
+        self.emcore.set_apikey(current_apikey)
+        self._logger.debug('Set current apikey: {}'.format(current_apikey))
+
+        if apicall == 'account/APIKeyInfo':
+            acc = evelink.account.Account(api=self.emcore.api)
+            api_result = acc.key_info()
+            self.fill_result(api_result)
 
     @pyqtSlot(bool)
     def on_click_add_new_apikey(self, checked: bool):
-        self._logger.debug('on_click_add_new_apikey')
+        # self._logger.debug('on_click_add_new_apikey')
         keyid = self._edit_keyid.text()
         vcode = self._edit_vcode.text()
         if (keyid == '') or (vcode == ''):
