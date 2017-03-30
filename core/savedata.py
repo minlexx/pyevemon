@@ -26,5 +26,15 @@ class SaveData:
 
     def get_apikeys(self) -> list:
         ret = self.sql_session.query(core.models.EMApiKey).all()
-        print(ret)
         return ret
+
+    def store_apikey(self, apikey: core.models.EMApiKey):
+        res = self.sql_session.query(core.models.EMApiKey).\
+            filter_by(keyid=apikey.keyid).one_or_none()
+        if res is None:
+            self.sql_session.add(apikey)
+            self.sql_session.commit()
+            self._logger.debug('SaveData: Stored apikey: {}'.format(apikey))
+            return True
+        self._logger.error('SaveData: cannot add new apikey, already exists: {}'.format(apikey))
+        return False
