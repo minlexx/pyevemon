@@ -5,7 +5,7 @@ import logging
 from PyQt5.QtGui import QGuiApplication, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
-    QPushButton, QVBoxLayout, QHBoxLayout, QPlainTextEdit
+    QPushButton, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox
 
 from core.logger import get_logger
 from core.em_core import get_core_instance
@@ -120,6 +120,11 @@ class ApitestMainWindow(QWidget):
 
         keyid = self._edit_keyid.text()
         vcode = self._edit_vcode.text()
+        if (keyid == '') or (vcode == ''):
+            QMessageBox.warning(self, 'Please fill in data!',
+                                'Cannot send request with empty API keyd/vcode')
+            return
+
         current_apikey = EMApiKey(keyid, vcode)
         self.emcore.set_apikey(current_apikey)
         self._logger.debug('Set current apikey: {}'.format(current_apikey))
