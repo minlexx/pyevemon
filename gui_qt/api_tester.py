@@ -11,9 +11,6 @@ from core.logger import get_logger
 from core.em_core import get_core_instance
 from core.models import EMApiKey
 
-import evelink.api
-import evelink.account
-
 
 class ApitestMainWindow(QWidget):
     def __init__(self, parent: QWidget = None):
@@ -100,16 +97,15 @@ class ApitestMainWindow(QWidget):
     def fill_data(self):
         # API calls
         self._cmb_apicall.clear()
-        self._cmb_apicall.addItem('account/APIKeyInfo')
-        self._cmb_apicall.addItem('account/AccountStatus')
-        self._cmb_apicall.addItem('account/Characters')
+        for apicall in self.emcore.get_supported_apicalls():
+            self._cmb_apicall.addItem(apicall)
         # API keys
         self.fill_apikeys()
 
-    def fill_result(self, result: evelink.api.APIResult):
-        if result.result is not None:
+    def fill_result(self, result: dict):
+        if (result is not None) and (type(result) == dict):
             self._edit_result.clear()
-            as_json = json.dumps(result.result, indent=4)
+            as_json = json.dumps(result, indent=4)
             self._edit_result.setPlainText(as_json)
 
     @pyqtSlot(bool)
@@ -129,20 +125,9 @@ class ApitestMainWindow(QWidget):
         self.emcore.set_apikey(current_apikey)
         self._logger.debug('Set current apikey: {}'.format(current_apikey))
 
-        if apicall == 'account/APIKeyInfo':
-            acc = evelink.account.Account(api=self.emcore.api)
-            api_result = acc.key_info()
-            self.fill_result(api_result)
-
-        elif apicall == 'account/AccountStatus':
-            acc = evelink.account.Account(api=self.emcore.api)
-            api_result = acc.status()
-            self.fill_result(api_result)
-
-        elif apicall == 'account/Characters':
-            acc = evelink.account.Account(api=self.emcore.api)
-            api_result = acc.characters()
-            self.fill_result(api_result)
+        result = self.emcore.api_call(apicall)
+        if result is not None:
+            self.fill_result(result)
 
     @pyqtSlot(bool)
     def on_click_add_new_apikey(self, checked: bool):
