@@ -38,6 +38,7 @@ class EmCore:
             self._logger.error('No handler exists for call "{}"'.format(apicall_name))
 
     def _init_supported_apicalls(self):
+        # explicitly add all supported eveapi calls:
         self._append_apicall_handler('account/APIKeyInfo')
         self._append_apicall_handler('account/AccountStatus')
         self._append_apicall_handler('account/Characters')
