@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
 
 from core.logger import get_logger
 from core.em_core import get_core_instance
-from core.models import EMApiKey
+from core.models import EmApiKey
 
 
 class ApitestMainWindow(QWidget):
@@ -92,13 +92,16 @@ class ApitestMainWindow(QWidget):
         self._cmb_apikey.clear()
         self.api_keys = self.emcore.savedata.get_apikeys()
         for api_key in self.api_keys:
-            self._cmb_apikey.addItem(api_key.keyid)
+            s = api_key.keyid
+            if api_key.friendly_name is not None:
+                s = '{} ({})'.format(api_key.friendly_name, api_key.keyid)
+            self._cmb_apikey.addItem(s, api_key.keyid)
 
     def fill_data(self):
         # API calls
         self._cmb_apicall.clear()
-        apicalls_list = self.emcore.get_supported_apicalls()
-        for apicall in sorted(apicalls_list):
+        supported_apicalls = sorted(self.emcore.get_supported_apicalls())
+        for apicall in supported_apicalls:
             self._cmb_apicall.addItem(apicall)
         # API keys
         self.fill_apikeys()
@@ -122,7 +125,7 @@ class ApitestMainWindow(QWidget):
                                 'Cannot send request with empty API keyd/vcode')
             return
 
-        current_apikey = EMApiKey(keyid, vcode)
+        current_apikey = EmApiKey(keyid, vcode)
         self.emcore.set_apikey(current_apikey)
         self._logger.debug('Set current apikey: {}'.format(current_apikey))
 
@@ -138,7 +141,7 @@ class ApitestMainWindow(QWidget):
         if (keyid == '') or (vcode == ''):
             self._logger.debug('keyid or vcode empty!')
             return
-        apikey = EMApiKey(keyid, vcode)
+        apikey = EmApiKey(keyid, vcode)
         if apikey.is_valid():
             self.emcore.savedata.store_apikey(apikey)
             # reload existing api keys
@@ -148,7 +151,7 @@ class ApitestMainWindow(QWidget):
 
     @pyqtSlot(int)
     def on_change_selected_apikey(self, idx: int):
-        keyid = self._cmb_apikey.currentText()
+        keyid = str(self._cmb_apikey.currentData())
         # self._logger.debug('idx: {}; keyid: {}'.format(idx, keyid))
         for apikey in self.api_keys:
             if apikey.keyid == keyid:
