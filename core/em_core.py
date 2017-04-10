@@ -10,6 +10,7 @@ import version
 
 import evelink.api
 import evelink.account
+import evelink.char
 
 _g_emcore_instance = None
 
@@ -42,6 +43,8 @@ class EmCore:
         self._append_apicall_handler('account/APIKeyInfo')
         self._append_apicall_handler('account/AccountStatus')
         self._append_apicall_handler('account/Characters')
+        self._append_apicall_handler('char/Skills')
+        self._append_apicall_handler('char/SkillQueue')
 
     def get_supported_apicalls(self) -> list:
         ret = []
@@ -65,6 +68,10 @@ class EmCore:
             self._logger.error('No handler to call "{}"'.format(apicall_path))
             return None
 
+    # ======================================
+    # API Calls, that are proxied to evelink
+    # ======================================
+
     def apicall_account_APIKeyInfo(self) -> dict:
         acc = evelink.account.Account(api=self.api)
         api_result = acc.key_info()
@@ -78,6 +85,16 @@ class EmCore:
     def apicall_account_Characters(self) -> dict:
         acc = evelink.account.Account(api=self.api)
         api_result = acc.characters()
+        return api_result.result
+
+    def apicall_char_Skills(self, char_id: int) -> dict:
+        char = evelink.char.Char(char_id, self.api)
+        api_result = char.skills()
+        return api_result.result
+
+    def apicall_char_SkillQueue(self, char_id: int) -> dict:
+        char = evelink.char.Char(char_id, self.api)
+        api_result = char.skill_queue()
         return api_result.result
 
 
