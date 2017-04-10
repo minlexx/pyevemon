@@ -17,6 +17,18 @@ class EmAutoTableAndIdMixin(object):
 EmModelBase = declarative_base()
 
 
+class EmKeyValue(EmModelBase, EmAutoTableAndIdMixin):
+    key = Column(String(256))
+    value = Column(String(256))
+
+    def __init__(self, key: str='', value: str=''):
+        self.key = key
+        self.value = value
+
+    def __str__(self):
+        return 'EmKeyValue("{}"="{}")'.format(self.key, self.value)
+
+
 class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
 
     keyid = Column(String(32))
