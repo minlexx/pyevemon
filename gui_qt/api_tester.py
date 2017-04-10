@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
 
 from core.logger import get_logger
 from core.em_core import get_core_instance
-from core.models import EMApiKey
+from core.models import EmApiKey
 
 
 class ApitestMainWindow(QWidget):
@@ -121,7 +121,7 @@ class ApitestMainWindow(QWidget):
                                 'Cannot send request with empty API keyd/vcode')
             return
 
-        current_apikey = EMApiKey(keyid, vcode)
+        current_apikey = EmApiKey(keyid, vcode)
         self.emcore.set_apikey(current_apikey)
         self._logger.debug('Set current apikey: {}'.format(current_apikey))
 
@@ -137,7 +137,7 @@ class ApitestMainWindow(QWidget):
         if (keyid == '') or (vcode == ''):
             self._logger.debug('keyid or vcode empty!')
             return
-        apikey = EMApiKey(keyid, vcode)
+        apikey = EmApiKey(keyid, vcode)
         if apikey.is_valid():
             self.emcore.savedata.store_apikey(apikey)
             # reload existing api keys

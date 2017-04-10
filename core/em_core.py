@@ -49,7 +49,7 @@ class EmCore:
             ret.append(apicall_name)
         return ret
 
-    def set_apikey(self, apikey: core.models.EMApiKey):
+    def set_apikey(self, apikey: core.models.EmApiKey):
         # should be a tuple of (keyid, vcode)
         self.api.api_key = (apikey.keyid, apikey.vcode)
 

@@ -25,11 +25,11 @@ class SaveData:
         self.sql_session = session_class()
 
     def get_apikeys(self) -> list:
-        ret = self.sql_session.query(core.models.EMApiKey).all()
+        ret = self.sql_session.query(core.models.EmApiKey).all()
         return ret
 
-    def store_apikey(self, apikey: core.models.EMApiKey):
-        res = self.sql_session.query(core.models.EMApiKey).\
+    def store_apikey(self, apikey: core.models.EmApiKey):
+        res = self.sql_session.query(core.models.EmApiKey).\
             filter_by(keyid=apikey.keyid).one_or_none()
         if res is None:
             self.sql_session.add(apikey)
