@@ -100,7 +100,8 @@ class ApitestMainWindow(QWidget):
     def fill_data(self):
         # API calls
         self._cmb_apicall.clear()
-        for apicall in self.emcore.get_supported_apicalls():
+        supported_apicalls = sorted(self.emcore.get_supported_apicalls())
+        for apicall in supported_apicalls:
             self._cmb_apicall.addItem(apicall)
         # API keys
         self.fill_apikeys()
