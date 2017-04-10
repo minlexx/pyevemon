@@ -92,7 +92,10 @@ class ApitestMainWindow(QWidget):
         self._cmb_apikey.clear()
         self.api_keys = self.emcore.savedata.get_apikeys()
         for api_key in self.api_keys:
-            self._cmb_apikey.addItem(api_key.keyid)
+            s = api_key.keyid
+            if api_key.friendly_name is not None:
+                s = '{} ({})'.format(api_key.friendly_name, api_key.keyid)
+            self._cmb_apikey.addItem(s, api_key.keyid)
 
     def fill_data(self):
         # API calls
@@ -147,7 +150,7 @@ class ApitestMainWindow(QWidget):
 
     @pyqtSlot(int)
     def on_change_selected_apikey(self, idx: int):
-        keyid = self._cmb_apikey.currentText()
+        keyid = str(self._cmb_apikey.currentData())
         # self._logger.debug('idx: {}; keyid: {}'.format(idx, keyid))
         for apikey in self.api_keys:
             if apikey.keyid == keyid:
