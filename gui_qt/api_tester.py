@@ -123,6 +123,17 @@ class ApitestMainWindow(QWidget):
                 self._edit_result.clear()
                 as_json = json.dumps(result, indent=4)
                 self._edit_result.setPlainText(as_json)
+                #
+                # autofill char_id from certain replies
+                apicall = self._cmb_apicall.currentText()
+                charids = []
+                if apicall == 'account/APIKeyInfo':
+                    charids = list(result['characters'])
+                if apicall == 'account/Characters':
+                    charids = list(result)
+                if len(charids) > 0:
+                    if self._edit_charid.text() == '':
+                        self._edit_charid.setText(str(charids[0]))
             else:
                 self._logger.warning('Unhandled result type: {}'.format(type(result)))
 
