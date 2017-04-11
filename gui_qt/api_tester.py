@@ -34,6 +34,7 @@ class ApitestMainWindow(QWidget):
         self._lbl_keyid = QLabel('keyID:', self)
         self._lbl_vcode = QLabel('vCode:', self)
         self._lbl_api_key = QLabel('Select API key:', self)
+        self._lbl_charid = QLabel('Char ID:', self)
 
         # combos
         self._cmb_apicall = QComboBox(self)
@@ -48,10 +49,12 @@ class ApitestMainWindow(QWidget):
         self._edit_vcode = QLineEdit(self)
         self._edit_result = QPlainTextEdit(self)
         self._edit_result.setReadOnly(True)
+        self._edit_charid = QLineEdit(self)
 
         # buttons
         self._btn_exec_call = QPushButton('Execute call', self)
         self._btn_exec_call.clicked.connect(self.on_click_execute_call)
+        self._btn_exec_call.setDefault(True)
         self._btn_add_new_apikey = QPushButton('Add new key', self)
         self._btn_add_new_apikey.clicked.connect(self.on_click_add_new_apikey)
 
@@ -71,11 +74,17 @@ class ApitestMainWindow(QWidget):
         self._layout_top2.addWidget(self._edit_vcode)
         self._layout_top2.addWidget(self._btn_add_new_apikey)
 
+        self._layout_top3 = QHBoxLayout()
+        self._layout_top3.addWidget(self._lbl_charid)
+        self._layout_top3.addWidget(self._edit_charid)
+        self._layout_top3.addStretch()
+
         self._layout_bot = QHBoxLayout()
         self._layout_bot.addWidget(self._edit_result)
 
         self._layout.addLayout(self._layout_top1, 0)
         self._layout.addLayout(self._layout_top2, 0)
+        self._layout.addLayout(self._layout_top3, 0)
         self._layout.addLayout(self._layout_bot, 1)
 
         self.fill_data()
@@ -125,11 +134,21 @@ class ApitestMainWindow(QWidget):
                                 'Cannot send request with empty API keyd/vcode')
             return
 
+        kwargs = {}
+
+        if apicall.startswith('char/'):
+            charid = None
+            try:
+                charid = int(self._edit_charid.text())
+            except ValueError:
+                pass
+            kwargs['char_id'] = charid
+
         current_apikey = EmApiKey(keyid, vcode)
         self.emcore.set_apikey(current_apikey)
         self._logger.debug('Set current apikey: {}'.format(current_apikey))
 
-        result = self.emcore.api_call(apicall)
+        result = self.emcore.api_call(apicall, **kwargs)
         if result is not None:
             self.fill_result(result)
 
