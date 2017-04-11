@@ -56,10 +56,14 @@ class EmCore:
         # should be a tuple of (keyid, vcode)
         self.api.api_key = (apikey.keyid, apikey.vcode)
 
-    def api_call(self, apicall_path: str) -> dict:
+    def api_call(self, apicall_path: str, **kwargs) -> dict:
+        self._logger.debug('api_call({}) with kwargs={}'.format(apicall_path, kwargs))
         try:
             handler_func = self.apicalls_dict[apicall_path]
-            result_dict = handler_func()
+            if len(kwargs.keys()) == 0:
+                result_dict = handler_func()
+            else:
+                result_dict = handler_func(**kwargs)
             return result_dict
         except evelink.api.APIError as apiex:
             self._logger.error('API Error {}: {}'.format(apiex.code, apiex.message))
