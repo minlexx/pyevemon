@@ -30,6 +30,18 @@ class EVEData:
         self._loaded = True
         self._logger.debug('Opened DB file: {}'.format(dbfn))
 
+    def find_typeid(self, type_id: int) -> dict:
+        ret = {}
+        cur = self._conn.cursor()
+        cur.execute('SELECT * FROM invTypes WHERE typeID=?', (type_id,))
+        row = cur.fetchone()
+        if row is not None:
+            col_names = row.keys()
+            for coln in col_names:
+                ret[coln] = row[coln]
+        cur.close()
+        return ret
+
     # def load_sde(self):
     #    # 1. check that EVEdata dir exists
     #    p = pathlib.Path(self.datadir)
