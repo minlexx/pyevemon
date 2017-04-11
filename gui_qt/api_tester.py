@@ -116,11 +116,15 @@ class ApitestMainWindow(QWidget):
         # API keys
         self.fill_apikeys()
 
-    def fill_result(self, result: dict):
-        if (result is not None) and (type(result) == dict):
-            self._edit_result.clear()
-            as_json = json.dumps(result, indent=4)
-            self._edit_result.setPlainText(as_json)
+    # result can be dict or list
+    def fill_result(self, result):
+        if result is not None:
+            if (type(result) == dict) or (type(result) == list):
+                self._edit_result.clear()
+                as_json = json.dumps(result, indent=4)
+                self._edit_result.setPlainText(as_json)
+            else:
+                self._logger.warning('Unhandled result type: {}'.format(type(result)))
 
     @pyqtSlot(bool)
     def on_click_execute_call(self, checked: bool):
