@@ -50,6 +50,7 @@ class ApitestMainWindow(QWidget):
         self._edit_result = QPlainTextEdit(self)
         self._edit_result.setReadOnly(True)
         self._edit_charid = QLineEdit(self)
+        self._edit_charid.setMaximumWidth(100)
 
         # buttons
         self._btn_exec_call = QPushButton('Execute call', self)
