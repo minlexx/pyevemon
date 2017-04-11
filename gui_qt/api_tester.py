@@ -141,7 +141,7 @@ class ApitestMainWindow(QWidget):
     def on_click_execute_call(self, checked: bool):
         # self._logger.debug('on_click_execute_call')
         apicall = self._cmb_apicall.currentText()
-        self._logger.debug('Api call: {}'.format(apicall))
+        # self._logger.debug('Api call: {}'.format(apicall))
 
         keyid = self._edit_keyid.text()
         vcode = self._edit_vcode.text()
@@ -162,7 +162,7 @@ class ApitestMainWindow(QWidget):
 
         current_apikey = EmApiKey(keyid, vcode)
         self.emcore.set_apikey(current_apikey)
-        self._logger.debug('Set current apikey: {}'.format(current_apikey))
+        # self._logger.debug('Set current apikey: {}'.format(current_apikey))
 
         result = self.emcore.api_call(apicall, **kwargs)
         if result is not None:

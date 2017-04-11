@@ -65,7 +65,7 @@ class EmCore:
                 result_dict = handler_func()
             else:
                 result_dict = handler_func(**kwargs)
-            self._logger.debug('Returning: {}'.format(result_dict))
+            # self._logger.debug('Returning: {}'.format(result_dict))
             return result_dict
         except evelink.api.APIError as apiex:
             self._logger.error('API Error {}: {}'.format(apiex.code, apiex.message))
