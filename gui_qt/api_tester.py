@@ -2,8 +2,8 @@
 import json
 import logging
 
-from PyQt5.QtGui import QGuiApplication, QIcon, QCloseEvent
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtGui import QIcon, QCloseEvent
+from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
     QPushButton, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox
 
