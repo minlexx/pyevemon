@@ -11,6 +11,7 @@ from core.em_core import get_core_instance
 from version import get_pyevemon_version
 
 from .api_tester import ApitestMainWindow
+from .apikeys_manager import ApikeysManagerWindow
 
 
 class QtEmMainWindow(QMainWindow):
@@ -45,6 +46,7 @@ class QtEmMainWindow(QMainWindow):
 
         # child windows
         self.apitmw = None
+        self.apikeysmgrw = None
 
     @pyqtSlot(bool)
     def on_action_api_tester(self, checked: bool = False):
@@ -69,4 +71,7 @@ class QtEmMainWindow(QMainWindow):
 
     @pyqtSlot(bool)
     def on_action_manage_apikeys(self, checked: bool = False):
-        pass
+        if self.apikeysmgrw is None:
+            self.apikeysmgrw = ApikeysManagerWindow()
+            self.apikeysmgrw.mainwindow = self
+        self.apikeysmgrw.raise_()
