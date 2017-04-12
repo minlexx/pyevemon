@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from PyQt5.QtGui import QGuiApplication, QIcon, QCloseEvent
+from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
     QPushButton, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox
@@ -9,6 +9,37 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
 from core.logger import get_logger
 from core.em_core import get_core_instance
 from core.models import EmApiKey
+
+
+class SingleApiKeyWidget(QWidget):
+    def __init__(self, parent):
+        super(SingleApiKeyWidget, self).__init__(parent)
+        #
+        self._layout = QHBoxLayout()
+        self.setLayout(self._layout)
+        #
+        self._lbl_keyname = QLabel('', self)
+        font = self._lbl_keyname.font()
+        font.setWeight(QFont.Bold)
+        self._lbl_keyname.setFont(font)
+        self._lbl_keyid = QLabel('', self)
+        self._lbl_vcode = QLabel('', self)
+        self._layout_v = QVBoxLayout()
+        self._layout_v.addWidget(self._lbl_keyname)
+        self._layout_v.addWidget(self._lbl_keyid)
+        self._layout_v.addWidget(self._lbl_vcode)
+        self._layout.addLayout(self._layout_v)
+        self._btn_edit = QPushButton(self.tr('Edit...'), self)
+        self._btn_remove = QPushButton(self.tr('Remove'), self)
+        self._layout.addWidget(self._btn_edit)
+        self._layout.addWidget(self._btn_remove)
+        #
+        self.show()
+
+    def set_from_apikey(self, apikey: EmApiKey):
+        self._lbl_keyname.setText(self.tr('Name') + ': ' + apikey.friendly_name)
+        self._lbl_keyid.setText('keyId: ' + apikey.keyid)
+        self._lbl_vcode.setText('vCode: ' + apikey.vcode)
 
 
 class ApikeysManagerWindow(QWidget):
@@ -20,7 +51,7 @@ class ApikeysManagerWindow(QWidget):
         self.emcore = get_core_instance()
         self.api_keys = []
 
-        self.setMinimumSize(640, 480)
+        self.setMinimumSize(300, 100)
         self.icon = QIcon('img/pyevemon.png')
         self.setWindowIcon(self.icon)
         self.setWindowTitle(self.tr('API Keys Manager'))
@@ -29,7 +60,7 @@ class ApikeysManagerWindow(QWidget):
         self.setLayout(self._layout)
 
         # labels
-        #self._lbl_api_method = QLabel('API call:', self)
+        self._lbl_apikeys = QLabel(self.tr('API keys:'), self)
 
         # combos
         #self._cmb_apicall = QComboBox(self)
@@ -38,16 +69,17 @@ class ApikeysManagerWindow(QWidget):
         #self._edit_keyid = QLineEdit(self)
 
         # buttons
-        #self._btn_exec_call = QPushButton('Execute call', self)
-        #self._btn_exec_call.clicked.connect(self.on_click_execute_call)
+        self._btn_add_apikey = QPushButton(self.tr('Add API key...'), self)
 
         # layouts
-        #self._layout_top1 = QHBoxLayout()
-        #self._layout_top1.addWidget(self._lbl_api_method)
-        #self._layout_top1.addStretch()
+        self._layout_top1 = QHBoxLayout()
+        self._layout_top1.addWidget(self._lbl_apikeys)
+        self._layout_top1.addWidget(self._btn_add_apikey)
+        self._layout_top1.addStretch()
 
-        #self._layout.addLayout(self._layout_top1, 0)
+        self._layout.addLayout(self._layout_top1, 0)
 
+        self.load_keys()
         self.show()
 
     # void QMainWindow::closeEvent(QCloseEvent * event)
@@ -55,3 +87,10 @@ class ApikeysManagerWindow(QWidget):
         self._logger.debug('ApikeysManagerWindow.closeEvent()')
         self.mainwindow.apikeysmgrw = None
         close_event.accept()
+
+    def load_keys(self):
+        apikeys = self.emcore.savedata.get_apikeys()
+        for apikey in apikeys:
+            apikey_widget = SingleApiKeyWidget(self)
+            apikey_widget.set_from_apikey(apikey)
+            self._layout.addWidget(apikey_widget)
