@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 from core.evedata import EVEData
