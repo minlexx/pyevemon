@@ -17,6 +17,7 @@ class SingleApiKeyWidget(QWidget):
         #
         self._layout = QHBoxLayout()
         self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self._layout)
         #
         self._lbl_keyname = QLabel('', self)
@@ -32,7 +33,7 @@ class SingleApiKeyWidget(QWidget):
             Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse |
             Qt.LinksAccessibleByKeyboard | Qt.LinksAccessibleByMouse)
         self._lbl_vcode = QLabel('', self)
-        self._lbl_vcode.setMinimumSize(100, 25)
+        self._lbl_vcode.setMinimumSize(450, 25)
         self._lbl_vcode.setMaximumHeight(25)
         self._lbl_vcode.setTextInteractionFlags(
             Qt.TextSelectableByKeyboard | Qt.TextSelectableByMouse |
@@ -80,12 +81,6 @@ class ApikeysManagerWindow(QWidget):
         # labels
         self._lbl_apikeys = QLabel(self.tr('API keys:'), self)
 
-        # combos
-        #self._cmb_apicall = QComboBox(self)
-
-        # edits
-        #self._edit_keyid = QLineEdit(self)
-
         # buttons
         self._btn_add_apikey = QPushButton(self.tr('Add API key...'), self)
 
@@ -96,11 +91,12 @@ class ApikeysManagerWindow(QWidget):
         self._layout_top1.addWidget(self._btn_add_apikey)
 
         self._layout.addLayout(self._layout_top1, 0)
+        self._layout.setSizeConstraint(QLayout.SetMinimumSize)
 
         self.load_keys()
         self.show()
 
-    # void QMainWindow::closeEvent(QCloseEvent * event)
+    # void QWidget::closeEvent(QCloseEvent * event)
     def closeEvent(self, close_event: QCloseEvent):
         self._logger.debug('ApikeysManagerWindow.closeEvent()')
         self.mainwindow.apikeysmgrw = None
@@ -111,5 +107,5 @@ class ApikeysManagerWindow(QWidget):
         for apikey in apikeys:
             apikey_widget = SingleApiKeyWidget(self)
             apikey_widget.set_from_apikey(apikey)
-            self._layout.addWidget(apikey_widget, 1)
-        self._layout.setSizeConstraint(QLayout.SetMinimumSize)
+            self._layout.addWidget(apikey_widget, 0)
+        self._layout.addStretch()
