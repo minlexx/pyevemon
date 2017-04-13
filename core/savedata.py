@@ -60,7 +60,7 @@ class SaveData:
         return ret
 
     def get_apikey_by_keyid(self, keyid: str) -> EmApiKey:
-        ret = self.sql_session.query(EmApiKey).folter_by(keyid=keyid).one_or_none()
+        ret = self.sql_session.query(EmApiKey).filter_by(keyid=keyid).one_or_none()
         return ret
 
     def store_apikey(self, apikey: EmApiKey):
