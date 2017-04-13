@@ -3,7 +3,7 @@ import logging
 
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QLineEdit, \
+from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
     QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox
 
 from core.logger import get_logger
@@ -79,6 +79,21 @@ class SingleApiKeyWidget(QWidget):
         self.removeClicked.emit(self._apikey.keyid)
 
 
+class AddEditApikeyDialog(QDialog):
+    def __init__(self, parent: QWidget, apikey: EmApiKey = None):
+        super(AddEditApikeyDialog, self).__init__(parent)
+
+        self._logger = get_logger(__name__, logging.DEBUG)
+        self._apikey = apikey
+
+        self.setSizeGripEnabled(True)
+
+        self.setMinimumSize(300, 200)
+
+    def get_apikey(self) -> EmApiKey:
+        return self._apikey
+
+
 class ApikeysManagerWindow(QWidget):
     def __init__(self, parent: QWidget = None):
         super(ApikeysManagerWindow, self).__init__(parent=parent)
@@ -132,11 +147,20 @@ class ApikeysManagerWindow(QWidget):
         #
         self._layout.addStretch()
 
-    def on_click_edit_apikey(self, keyid: str):
-        self._logger.debug('keyid = {}'.format(keyid))
+    def start_add_or_edit_apikey(self, keyid: str = None):
+        apikey = None
+        if keyid is not None:
+            apikey = self.emcore.savedata.get_apikey_by_keyid(keyid)
+        dlg = AddEditApikeyDialog(self, apikey)
+        dlg.exec_()
 
     def on_click_add_apikey(self):
         self._logger.debug('click')
+        self.start_add_or_edit_apikey()
+
+    def on_click_edit_apikey(self, keyid: str):
+        self._logger.debug('keyid = {}'.format(keyid))
+        self.start_add_or_edit_apikey(keyid)
 
     def on_click_remove_apikey(self, keyid: str):
         self._logger.debug('keyid = {}'.format(keyid))
