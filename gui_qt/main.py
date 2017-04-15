@@ -4,7 +4,7 @@ import sys
 
 import sip
 
-from PyQt5.QtCore import PYQT_VERSION_STR
+from PyQt5.QtCore import PYQT_VERSION_STR, QCoreApplication, Qt
 from PyQt5.QtWidgets import QApplication
 
 import version
@@ -19,6 +19,9 @@ def start_gui():
 
     sip.setdestroyonexit(False)
     ver = version.get_pyevemon_version()
+
+    # flags are usually set BEFORE app object is created
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
     app = QApplication(sys.argv)
     app.setApplicationVersion(ver['version'])
