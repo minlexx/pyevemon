@@ -66,6 +66,8 @@ class SingleApiKeyWidget(QWidget):
 
     def set_from_apikey(self, apikey: EmApiKey):
         self._apikey = apikey
+        if self._apikey.friendly_name is None:
+            self._apikey.friendly_name = ''
         self._lbl_keyname.setText(self.tr('Name') + ': ' + apikey.friendly_name)
         self._lbl_keyid.setText('keyId: ' + apikey.keyid)
         self._lbl_vcode.setText('vCode: ' + apikey.vcode)
