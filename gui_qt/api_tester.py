@@ -152,7 +152,7 @@ class ApitestMainWindow(QWidget):
 
         kwargs = {}
 
-        if apicall.startswith('char/'):
+        if apicall.startswith('char/') or (apicall == 'eve/CharacterInfo'):
             charid = None
             try:
                 charid = int(self._edit_charid.text())

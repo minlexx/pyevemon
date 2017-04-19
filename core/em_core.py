@@ -11,6 +11,7 @@ import version
 import evelink.api
 import evelink.account
 import evelink.char
+import evelink.eve
 import evelink.server
 
 _g_emcore_instance = None
@@ -45,6 +46,8 @@ class EmCore:
         self._append_apicall_handler('account/APIKeyInfo')
         self._append_apicall_handler('account/AccountStatus')
         self._append_apicall_handler('account/Characters')
+        self._append_apicall_handler('eve/CharacterInfo')
+        self._append_apicall_handler('char/CharacterSheet')
         self._append_apicall_handler('char/Skills')
         self._append_apicall_handler('char/SkillQueue')
 
@@ -98,6 +101,16 @@ class EmCore:
     def apicall_account_Characters(self) -> dict:
         acc = evelink.account.Account(api=self.api)
         api_result = acc.characters()
+        return api_result.result
+
+    def apicall_eve_CharacterInfo(self, char_id: int) -> dict:
+        eve = evelink.eve.EVE(self.api)
+        api_result = eve.character_info_from_id(char_id)
+        return api_result.result
+
+    def apicall_char_CharacterSheet(self, char_id: int) -> dict:
+        char = evelink.char.Char(char_id, self.api)
+        api_result = char.character_sheet()
         return api_result.result
 
     def apicall_char_Skills(self, char_id: int) -> dict:
