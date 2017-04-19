@@ -11,6 +11,7 @@ import version
 import evelink.api
 import evelink.account
 import evelink.char
+import evelink.server
 
 _g_emcore_instance = None
 
@@ -40,6 +41,7 @@ class EmCore:
 
     def _init_supported_apicalls(self):
         # explicitly add all supported eveapi calls:
+        self._append_apicall_handler('server/ServerStatus')
         self._append_apicall_handler('account/APIKeyInfo')
         self._append_apicall_handler('account/AccountStatus')
         self._append_apicall_handler('account/Characters')
@@ -77,6 +79,11 @@ class EmCore:
     # ======================================
     # API Calls, that are proxied to evelink
     # ======================================
+
+    def apicall_server_ServerStatus(self) -> dict:
+        srv = evelink.server.Server(api=self.api)
+        api_result = srv.server_status()
+        return api_result.result
 
     def apicall_account_APIKeyInfo(self) -> dict:
         acc = evelink.account.Account(api=self.api)
