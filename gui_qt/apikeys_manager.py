@@ -89,8 +89,14 @@ class AddEditApikeyDialog(QDialog):
         self._apikey = apikey
 
         self.setSizeGripEnabled(True)
-
         self.setMinimumSize(300, 200)
+        self.icon = QIcon('img/pyevemon.png')
+        self.setWindowIcon(self.icon)
+
+        if self._apikey is not None:
+            self.setWindowTitle(self.tr('Edit API key'))
+        else:
+            self.setWindowTitle(self.tr('Add API key'))
 
     def get_apikey(self) -> EmApiKey:
         return self._apikey
