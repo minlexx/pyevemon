@@ -4,7 +4,8 @@ import logging
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
-    QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox
+    QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox, \
+    QWizard, QWizardPage
 
 from core.logger import get_logger
 from core.em_core import get_core_instance
@@ -81,7 +82,7 @@ class SingleApiKeyWidget(QWidget):
         self.removeClicked.emit(self._apikey.keyid)
 
 
-class AddEditApikeyDialog(QDialog):
+class AddEditApikeyDialog(QWizard):
     def __init__(self, parent: QWidget, apikey: EmApiKey = None):
         super(AddEditApikeyDialog, self).__init__(parent)
 
@@ -97,6 +98,24 @@ class AddEditApikeyDialog(QDialog):
             self.setWindowTitle(self.tr('Edit API key'))
         else:
             self.setWindowTitle(self.tr('Add API key'))
+
+        # wizard pages.
+        # Page 1: API key ID / vcode input
+        self.page1 = QWizardPage()
+        self.page1.setTitle(self.tr('API Key ID / vCode input'))
+        self.page1.lbl_keyID = QLabel(self.tr('API key ID:'))
+        self.page1.lbl_vcode = QLabel(self.tr('API key vCode:'))
+        self.page1.le_keyID = QLineEdit()
+        self.page1.le_vcode = QLineEdit()
+        self.page1.lbl_keyID.setBuddy(self.page1.le_keyID)
+        self.page1.lbl_vcode.setBuddy(self.page1.le_vcode)
+        self.page1.registerField('keyID', self.page1.le_keyID)
+        self.page1.registerField('vcode', self.page1.le_vcode)
+
+        self.addPage(self.page1)
+
+        # wizard options
+        self.setOption(QWizard.HaveHelpButton, False)
 
     def get_apikey(self) -> EmApiKey:
         return self._apikey
