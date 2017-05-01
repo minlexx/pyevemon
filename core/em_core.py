@@ -30,6 +30,9 @@ class EmCore:
             ver['app_name'], ver['version'], ver['author_email'])
         self.api = evelink.api.API(cache=self.cache, user_agent=self.user_agent_str)
         self.apicalls_dict = {}
+        self._last_error_code = 0
+        self._last_error_msg = ''
+        #
         self._init_supported_apicalls()
 
     def _append_apicall_handler(self, apicall_name: str):
@@ -61,9 +64,17 @@ class EmCore:
         # should be a tuple of (keyid, vcode)
         self.api.api_key = (apikey.keyid, apikey.vcode)
 
+    def _clear_last_error(self):
+        self._last_error_code = 0
+        self._last_error_msg = ''
+
+    def get_last_error(self) -> tuple:
+        return (self._last_error_code, self._last_error_msg)
+
     # can return list or dict
     def api_call(self, apicall_path: str, **kwargs):
         self._logger.debug('api_call({}) with kwargs={}'.format(apicall_path, kwargs))
+        self._clear_last_error()
         try:
             handler_func = self.apicalls_dict[apicall_path]
             if len(kwargs.keys()) == 0:
@@ -74,9 +85,13 @@ class EmCore:
             return result_dict
         except evelink.api.APIError as apiex:
             self._logger.error('API Error {}: {}'.format(apiex.code, apiex.message))
+            self._last_error_code = apiex.code
+            self._last_error_msg = apiex.message
             return None
         except KeyError:
             self._logger.error('No handler to call "{}"'.format(apicall_path))
+            self._last_error_code = -1
+            self._last_error_msg = 'No handler to call {}'.format(apicall_path)
             return None
 
     # ======================================
