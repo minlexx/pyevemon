@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import logging
 
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
@@ -87,14 +88,20 @@ class AddEditApikeyDialog(QWizard):
         super(AddEditApikeyDialog, self).__init__(parent)
 
         self._logger = get_logger(__name__, logging.DEBUG)
-        self._apikey = apikey
+        self._apikey = EmApiKey()
+        if apikey is not None:
+            self._apikey.keyid = apikey.keyid
+            self._apikey.vcode = apikey.vcode
+            self._apikey.friendly_name = ''
+            if apikey.friendly_name is not None:
+                self._apikey.friendly_name = apikey.friendly_name
 
         self.setSizeGripEnabled(True)
         self.setMinimumSize(300, 200)
         self.icon = QIcon('img/pyevemon.png')
         self.setWindowIcon(self.icon)
 
-        if self._apikey is not None:
+        if not self._apikey.is_empty():
             self.setWindowTitle(self.tr('Edit API key'))
         else:
             self.setWindowTitle(self.tr('Add API key'))
@@ -103,6 +110,7 @@ class AddEditApikeyDialog(QWizard):
         # Page 1: API key ID / vcode input
         self.page1 = QWizardPage(self)
         self.page1.setTitle(self.tr('API Key ID / vCode input'))
+        self.page1.setSubTitle(self.tr('Edit API key ID and vCode'))
         self.page1.l = QGridLayout()
         self.page1.setLayout(self.page1.l)
         self.page1.lbl_keyID = QLabel(self.tr('API key ID:'), self.page1)
@@ -117,17 +125,69 @@ class AddEditApikeyDialog(QWizard):
         self.page1.l.addWidget(self.page1.le_vcode, 1, 1)
         self.page1.registerField('keyid', self.page1.le_keyID)
         self.page1.registerField('vcode', self.page1.le_vcode)
-        if self._apikey is not None:
-            self.page1.le_keyID.setText(self._apikey.keyid)
-            self.page1.le_vcode.setText(self._apikey.vcode)
+        self.page1.le_keyID.setText(self._apikey.keyid)
+        self.page1.le_vcode.setText(self._apikey.vcode)
+
+        self.page2 = QWizardPage(self)
+        self.page2.setTitle(self.tr('API Key access mask'))
+        self.page2.setSubTitle(self.tr('Check thar API key has acceptable access rights'))
 
         self.addPage(self.page1)
+        self.addPage(self.page2)
 
         # wizard options
         self.setOption(QWizard.HaveHelpButton, False)
 
     def get_apikey(self) -> EmApiKey:
         return self._apikey
+
+    def show_popup_warning(self, m: str):
+        self._logger.warning(m)
+        QMessageBox.warning(self, self.tr('Warning'), m)
+
+    def validateCurrentPage(self) -> bool:
+        page_id = int(self.currentId())
+        self._logger.debug('current Id = {}'.format(page_id))
+        #
+        if page_id == 0:
+            # validate API key, get API key info
+            self._apikey.keyid = self.field('keyid')
+            self._apikey.vcode = self.field('vcode')
+            self._logger.debug('Input fields: {} / {}'.format(self._apikey.keyid, self._apikey.vcode))
+            if not self._apikey.is_valid():
+                self.show_popup_warning(self.tr('Invalid input!'))
+                return False
+            emcore = get_core_instance()
+            emcore.set_apikey(self._apikey)
+            keyinfo = emcore.api_call('account/APIKeyInfo')
+            # {'type': 'account', 'characters': {91205062: {'alliance': {'id': 0, 'name': ''},
+            #    'id': 91205062, 'name': 'Lexx Min', 'corp': {'id': 98369889, 'name': 'New Home Inc.'}},
+            #    93013943: {'alliance': {'id': 0, 'name': ''}, 'id': 93013943, 'name': 'Alexxia Kion',
+            #    'corp': {'id': 1000045, 'name': 'Science and Trade Institute'}}}, 'access_mask': 1073741823,
+            #    'expire_ts': None}
+            if keyinfo is not None:
+                if type(keyinfo) == dict:
+                    self._apikey.keytype = str(keyinfo['type'])
+                    self._apikey.characters = keyinfo['characters']
+                    self._apikey.access_mask = int(keyinfo['access_mask'])
+                    self._apikey.expire_ts = keyinfo['expire_ts']
+                    self._apikey.expired = False
+                    cur_ts = datetime.datetime.utcnow().timestamp()
+                    if self._apikey.expire_ts is not None:
+                        if cur_ts > self._apikey.expire_ts:
+                            self._apikey.expired = True
+                    if self._apikey.expired:
+                        self.show_popup_warning(self.tr('Key has expired!'))
+                        return False
+                    return True
+            else:
+                le = emcore.get_last_error()
+                warnmsg = self.tr('EVE api call account/APIKeyInfo failed!')
+                if le is not None:
+                    warnmsg += '\n' + self.tr('Error message was:') + ' ' + le[1]
+                self.show_popup_warning(warnmsg)
+                return False
+        return True
 
 
 class ApikeysManagerWindow(QWidget):
