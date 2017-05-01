@@ -53,5 +53,10 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
         if r is None: return False
         return True
 
+    def is_empty(self):
+        if self.keyid is None or self.keyid == '': return True
+        if self.vcode is None or self.vcode == '': return True
+        return False
+
     def __str__(self):
         return 'EmApiKey("{}", "{}")'.format(self.keyid, self.vcode)
