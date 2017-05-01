@@ -75,8 +75,16 @@ class EmCore:
     def api_call(self, apicall_path: str, **kwargs):
         self._logger.debug('api_call({}) with kwargs={}'.format(apicall_path, kwargs))
         self._clear_last_error()
+
         try:
             handler_func = self.apicalls_dict[apicall_path]
+        except KeyError:
+            self._logger.error('No handler to call "{}"'.format(apicall_path))
+            self._last_error_code = -1
+            self._last_error_msg = 'No handler to call {}'.format(apicall_path)
+            return None
+
+        try:
             if len(kwargs.keys()) == 0:
                 result_dict = handler_func()
             else:
@@ -88,15 +96,15 @@ class EmCore:
             self._last_error_code = apiex.code
             self._last_error_msg = apiex.message
             return None
-        except KeyError:
-            self._logger.error('No handler to call "{}"'.format(apicall_path))
-            self._last_error_code = -1
-            self._last_error_msg = 'No handler to call {}'.format(apicall_path)
-            return None
 
-    # ======================================
+    # ============================================================
     # API Calls, that are proxied to evelink
-    # ======================================
+    # ============================================================
+    # Client application generally should not use the following
+    # methods directly, but use EmCore.api_call('...') wrapper
+    # instead, because it catches evelink exceptions.
+    # Or, alternatively, you can catch them yourself.
+    # ============================================================
 
     def apicall_server_ServerStatus(self) -> dict:
         srv = evelink.server.Server(api=self.api)
