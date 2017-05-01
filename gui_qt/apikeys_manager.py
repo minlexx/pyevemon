@@ -4,7 +4,7 @@ import logging
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
-    QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QMessageBox, \
+    QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox, \
     QWizard, QWizardPage
 
 from core.logger import get_logger
@@ -101,16 +101,25 @@ class AddEditApikeyDialog(QWizard):
 
         # wizard pages.
         # Page 1: API key ID / vcode input
-        self.page1 = QWizardPage()
+        self.page1 = QWizardPage(self)
         self.page1.setTitle(self.tr('API Key ID / vCode input'))
-        self.page1.lbl_keyID = QLabel(self.tr('API key ID:'))
-        self.page1.lbl_vcode = QLabel(self.tr('API key vCode:'))
-        self.page1.le_keyID = QLineEdit()
-        self.page1.le_vcode = QLineEdit()
+        self.page1.l = QGridLayout()
+        self.page1.setLayout(self.page1.l)
+        self.page1.lbl_keyID = QLabel(self.tr('API key ID:'), self.page1)
+        self.page1.lbl_vcode = QLabel(self.tr('API key vCode:'), self.page1)
+        self.page1.le_keyID = QLineEdit(self.page1)
+        self.page1.le_vcode = QLineEdit(self.page1)
         self.page1.lbl_keyID.setBuddy(self.page1.le_keyID)
         self.page1.lbl_vcode.setBuddy(self.page1.le_vcode)
-        self.page1.registerField('keyID', self.page1.le_keyID)
+        self.page1.l.addWidget(self.page1.lbl_keyID, 0, 0)
+        self.page1.l.addWidget(self.page1.le_keyID, 0, 1)
+        self.page1.l.addWidget(self.page1.lbl_vcode, 1, 0)
+        self.page1.l.addWidget(self.page1.le_vcode, 1, 1)
+        self.page1.registerField('keyid', self.page1.le_keyID)
         self.page1.registerField('vcode', self.page1.le_vcode)
+        if self._apikey is not None:
+            self.page1.le_keyID.setText(self._apikey.keyid)
+            self.page1.le_vcode.setText(self._apikey.vcode)
 
         self.addPage(self.page1)
 
