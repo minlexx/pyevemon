@@ -2,10 +2,47 @@
 Models for SQLAlchemy
 """
 
+from enum import IntEnum, unique
 import re
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
+
+
+@unique
+class EveApiAccessMask(IntEnum):
+    AccountBalance         = 1
+    AssetList              = 2
+    CalendarEventAttendees = 4
+    CharacterSheet         = 8
+    ContactList            = 16
+    ContactNotifications   = 32
+    FacWarStats            = 64
+    IndustryJobs           = 128
+    KillLog                = 256
+    MailBodies             = 512
+    MailingLists           = 1024
+    MailMessages           = 2048
+    MarketOrders           = 4096
+    Medals                 = 8192
+    Notifications          = 16384
+    NotificationTexts      = 32768
+    Research               = 65536
+    SkillInTraining        = 131072
+    SkillQueue             = 262144
+    Standings              = 524288
+    UpcomingCalendarEvents = 1048576
+    Walletjournal          = 2097152
+    WalletTransactions     = 4194304
+    CharacterInfo_public   = 8388608
+    CharacterInfo_private  = 16777216
+    AccountStatus          = 33554432
+    Contracts              = 67108864
+    Locations              = 134217728
+    Bookmarks              = 268435456
+    ChatChannels           = 536870912
+    Skills                 = 1073741824
+    Clones                 = 2147483648
 
 
 class EmAutoTableAndIdMixin(object):
