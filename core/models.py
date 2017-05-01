@@ -2,6 +2,8 @@
 Models for SQLAlchemy
 """
 
+import re
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
@@ -41,10 +43,14 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
         self.friendly_name = friendly_name
 
     def is_valid(self):
-        if len(self.keyid) != 7:
-            return False
-        if len(self.vcode) != 64:
-            return False
+        if len(self.keyid) != 7: return False
+        if len(self.vcode) != 64: return False
+        # keyid contains only numbers
+        r = re.match(r'^([0-9])+$', self.keyid)
+        if r is None: return False
+        # vcode can contain only numbers and EN letters
+        r = re.match(r'^([0-9a-zA-Z])+$', self.vcode)
+        if r is None: return False
         return True
 
     def __str__(self):
