@@ -12,7 +12,7 @@ from core.models import EmModelBase, EmApiKey, EmKeyValue
 
 class SaveData:
 
-    current_db_revision = 2
+    current_db_revision = 3
 
     def __init__(self):
         self._logger = core.logger.get_logger(__name__, logging.DEBUG)
@@ -32,13 +32,15 @@ class SaveData:
     def _check_database(self):
         # get db version
         dbrev = self._get_db_revision()
-        self._logger.debug('Got db revision: {}'.format(dbrev))
-        if dbrev < self.current_db_revision:
-            # run migration scripts?
+        self._logger.debug('Got savedata db revision: {}'.format(dbrev))
+        if dbrev == 0:
+            self._run_migration(0)
+        else:
+            # run migration scripts in order [1..current]
             while dbrev < self.current_db_revision:
                 self._run_migration(dbrev)
                 dbrev += 1
-        self._logger.debug('DB check complete')
+        self._logger.debug('Savedata DB check complete')
 
     def _get_db_revision(self) -> int:
         res = self.sql_session.query(EmKeyValue).filter_by(key='_db_version').one_or_none()
@@ -47,21 +49,30 @@ class SaveData:
         rev = int(res.value)
         return rev
 
+    def _set_db_revision(self, rev: int):
+        keyvalue = self.sql_session.query(EmKeyValue).filter_by(key='_db_version').one_or_none()
+        if keyvalue is None:
+            keyvalue = EmKeyValue('_db_version', str(rev))
+        keyvalue.value = str(rev)
+        self.sql_session.add(keyvalue)
+        self.sql_session.commit()
+
     def _run_migration(self, rev: int):
         if rev == 0:
-            self._logger.debug('Running migration rev 0->1...')
-            with self.sql_engine.connect() as con:
-                con.execute('ALTER TABLE emapikey ADD COLUMN friendly_name TEXT')
-                con.execute("""INSERT OR REPLACE INTO emkeyvalue (key, value)
-                    VALUES ('_db_version', '1')""")
+            self._logger.debug('First run; set savedata db revision to current = {}'.format(self.current_db_revision))
+            self._set_db_revision(self.current_db_revision)
         elif rev == 1:
             self._logger.debug('Running migration rev 1->2...')
+            with self.sql_engine.connect() as con:
+                con.execute('ALTER TABLE emapikey ADD COLUMN friendly_name TEXT')
+                self._set_db_revision(rev+1)
+        elif rev == 2:
+            self._logger.debug('Running migration rev 2->3...')
             with self.sql_engine.connect() as con:
                 con.execute('ALTER TABLE emapikey ADD COLUMN key_type TEXT')
                 con.execute('ALTER TABLE emapikey ADD COLUMN access_mask INTEGER')
                 con.execute('ALTER TABLE emapikey ADD COLUMN expire_ts INTEGER')
-                con.execute("""INSERT OR REPLACE INTO emkeyvalue (key, value)
-                                    VALUES ('_db_version', '2')""")
+                self._set_db_revision(rev+1)
 
     def get_apikeys(self) -> list:
         ret = self.sql_session.query(EmApiKey).all()
