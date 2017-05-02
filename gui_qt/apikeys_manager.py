@@ -125,12 +125,16 @@ class AddEditApikeyDialog(QWizard):
         self.page1.l.addWidget(self.page1.le_vcode, 1, 1)
         self.page1.registerField('keyid', self.page1.le_keyID)
         self.page1.registerField('vcode', self.page1.le_vcode)
-        self.page1.le_keyID.setText(self._apikey.keyid)
-        self.page1.le_vcode.setText(self._apikey.vcode)
 
         self.page2 = QWizardPage(self)
-        self.page2.setTitle(self.tr('API Key access mask'))
-        self.page2.setSubTitle(self.tr('Check thar API key has acceptable access rights'))
+        self.page2.setTitle(self.tr('API Key type and access mask'))
+        # self.page2.setSubTitle(self.tr('Check thar API key has acceptable access rights'))
+        self.page2.l = QGridLayout()
+        self.page2.setLayout(self.page2.l)
+        self.page2.lbl_keytype = QLabel(self.tr('API Key type:'), self.page2)
+        self.page2.lbl_keytype_v = QLabel('', self.page2)
+        self.page2.l.addWidget(self.page2.lbl_keytype, 0, 0)
+        self.page2.l.addWidget(self.page2.lbl_keytype_v, 0, 1)
 
         self.addPage(self.page1)
         self.addPage(self.page2)
@@ -145,7 +149,19 @@ class AddEditApikeyDialog(QWizard):
         self._logger.warning(m)
         QMessageBox.warning(self, self.tr('Warning'), m)
 
+    def initializePage(self, page_id):
+        """ This virtual function is called by QWizard to prepare page id just before it is shown """
+        self._logger.debug('page_id = {}'.format(page_id))
+        if page_id == 0:
+            self.page1.le_keyID.setText(self._apikey.keyid)
+            self.page1.le_vcode.setText(self._apikey.vcode)
+        elif page_id == 1:
+            self.page2.lbl_keytype_v.setText(self._apikey.key_type)
+
     def validateCurrentPage(self) -> bool:
+        """ This virtual function is called by QWizard when the user clicks Next or Finish
+        to perform some last-minute validation. If it returns true, the next page is shown
+        (or the wizard finishes); otherwise, the current page stays up. """
         page_id = int(self.currentId())
         self._logger.debug('current Id = {}'.format(page_id))
         #
@@ -167,7 +183,7 @@ class AddEditApikeyDialog(QWizard):
             #    'expire_ts': None}
             if keyinfo is not None:
                 if type(keyinfo) == dict:
-                    self._apikey.keytype = str(keyinfo['type'])
+                    self._apikey.key_type = str(keyinfo['type'])
                     self._apikey.characters = keyinfo['characters']
                     self._apikey.access_mask = int(keyinfo['access_mask'])
                     self._apikey.expire_ts = keyinfo['expire_ts']
