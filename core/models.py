@@ -74,11 +74,17 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
     keyid = Column(String(32))
     vcode = Column(String(256))
     friendly_name = Column(String(256))
+    key_type = Column(String(32))
+    access_mask = Column(Integer)
+    expire_ts = Column(Integer)
 
     def __init__(self, keyid: str='', vcode: str='', friendly_name: str=''):
         self.keyid = keyid
         self.vcode = vcode
         self.friendly_name = friendly_name
+        # fields below are not stored in DB
+        self.characters = {}
+        self.expired = False
 
     def is_valid(self):
         if len(self.keyid) != 7: return False

@@ -12,7 +12,7 @@ from core.models import EmModelBase, EmApiKey, EmKeyValue
 
 class SaveData:
 
-    current_db_revision = 1
+    current_db_revision = 2
 
     def __init__(self):
         self._logger = core.logger.get_logger(__name__, logging.DEBUG)
@@ -54,6 +54,14 @@ class SaveData:
                 con.execute('ALTER TABLE emapikey ADD COLUMN friendly_name TEXT')
                 con.execute("""INSERT OR REPLACE INTO emkeyvalue (key, value)
                     VALUES ('_db_version', '1')""")
+        elif rev == 1:
+            self._logger.debug('Running migration rev 1->2...')
+            with self.sql_engine.connect() as con:
+                con.execute('ALTER TABLE emapikey ADD COLUMN key_type TEXT')
+                con.execute('ALTER TABLE emapikey ADD COLUMN access_mask INTEGER')
+                con.execute('ALTER TABLE emapikey ADD COLUMN expire_ts INTEGER')
+                con.execute("""INSERT OR REPLACE INTO emkeyvalue (key, value)
+                                    VALUES ('_db_version', '2')""")
 
     def get_apikeys(self) -> list:
         ret = self.sql_session.query(EmApiKey).all()
