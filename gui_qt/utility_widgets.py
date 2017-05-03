@@ -20,8 +20,7 @@ class LabelWithOkCancelIcon(QWidget):
         self.pixmap = QPixmap()
         self._ok_status = False
 
-    def setIconAndText(self, ok_status: bool, text: str):
-        self.label.setText(text)
+    def set_ok_status(self, ok_status: bool):
         self._ok_status = ok_status
         if ok_status:
             self.pixmap.load('img/ok_icon.png')
@@ -29,8 +28,12 @@ class LabelWithOkCancelIcon(QWidget):
             self.pixmap.load('img/cancel_icon.png')
         self.icon_label.setPixmap(self.pixmap.scaled(32, 32))
 
+    def ok_status(self) -> bool:
+        return self._ok_status
+
+    def set_text(self, text: str):
+        self.label.setText(text)
+
     def text(self) -> str:
         return str(self.label.text())
 
-    def ok_status(self) -> bool:
-        return self._ok_status
