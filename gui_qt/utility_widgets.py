@@ -11,6 +11,8 @@ class LabelWithOkCancelIcon(QWidget):
     def __init__(self, parent: QWidget = None):
         super(LabelWithOkCancelIcon, self).__init__(parent)
         self.layout = QHBoxLayout()
+        self.layout.setSpacing(2)
+        self.layout.setContentsMargins(2, 2, 2, 2)
         self.setLayout(self.layout)
         self.icon_label = QLabel(self)
         self.label = QLabel(self)
