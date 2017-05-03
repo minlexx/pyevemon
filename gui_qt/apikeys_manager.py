@@ -317,7 +317,10 @@ class ApikeysManagerWindow(QWidget):
         if keyid is not None:
             apikey = self.emcore.savedata.get_apikey_by_keyid(keyid)
         dlg = AddEditApikeyDialog(self, apikey)
-        dlg.exec_()
+        exec_res = dlg.exec_()
+        if exec_res == QDialog.Rejected: return
+        # apply added/edited apikey
+        self.emcore.savedata.store_apikey(dlg.get_apikey())
 
     def on_click_add_apikey(self):
         self._logger.debug('click')
