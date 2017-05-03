@@ -12,6 +12,8 @@ from core.logger import get_logger
 from core.em_core import get_core_instance
 from core.models import EmApiKey
 
+from utility_widgets import LabelWithOkCancelIcon
+
 
 class SingleApiKeyWidget(QWidget):
 
@@ -129,12 +131,46 @@ class AddEditApikeyDialog(QWizard):
         self.page2 = QWizardPage(self)
         self.page2.setTitle(self.tr('API Key type and access mask'))
         # self.page2.setSubTitle(self.tr('Check thar API key has acceptable access rights'))
-        self.page2.l = QGridLayout()
+        self.page2.l = QVBoxLayout()
+        self.page2.l1 = QHBoxLayout()  # key type
+        self.page2.l2 = QHBoxLayout()  # access mask
+        self.page2.l3 = QHBoxLayout()  # characters
+        self.page2.l4 = QHBoxLayout()  # expires
+        self.page2.lx = QGridLayout()  # checks grid
         self.page2.setLayout(self.page2.l)
+        self.page2.l.addLayout(self.page2.l1)
+        self.page2.l.addLayout(self.page2.l2)
+        self.page2.l.addLayout(self.page2.l3)
+        self.page2.l.addLayout(self.page2.l4)
+        self.page2.l.addLayout(self.page2.lx)
+        #
         self.page2.lbl_keytype = QLabel(self.tr('API Key type:'), self.page2)
         self.page2.lbl_keytype_v = QLabel('', self.page2)
-        self.page2.l.addWidget(self.page2.lbl_keytype, 0, 0)
-        self.page2.l.addWidget(self.page2.lbl_keytype_v, 0, 1)
+        self.page2.lbl_accessmask = QLabel(self.tr('API Key access mask:'), self.page2)
+        self.page2.lbl_accessmask_v = QLabel('', self.page2)
+        self.page2.lbl_characters = QLabel(self.tr('Characters:'), self.page2)
+        self.page2.lbl_characters_v = QLabel('', self.page2)
+        self.page2.lbl_expires = QLabel(self.tr('Expires:'), self.page2)
+        self.page2.lbl_expires_v = QLabel('', self.page2)
+        self.page2.l1.addWidget(self.page2.lbl_keytype)
+        self.page2.l1.addWidget(self.page2.lbl_keytype_v)
+        self.page2.l1.addStretch()
+        self.page2.l2.addWidget(self.page2.lbl_accessmask)
+        self.page2.l2.addWidget(self.page2.lbl_accessmask_v)
+        self.page2.l2.addStretch()
+        self.page2.l3.addWidget(self.page2.lbl_characters)
+        self.page2.l3.addWidget(self.page2.lbl_characters_v)
+        self.page2.l3.addStretch()
+        self.page2.l4.addWidget(self.page2.lbl_expires)
+        self.page2.l4.addWidget(self.page2.lbl_expires_v)
+        self.page2.l4.addStretch()
+        #
+        self.page2.w_basicfuncs = LabelWithOkCancelIcon(self.page2)
+        self.page2.w_basicfuncs.set_text(self.tr('Basic character info'))
+        self.page2.lx.addWidget(self.page2.w_basicfuncs, 0, 0)
+        self.page2.w_skills = LabelWithOkCancelIcon(self.page2)
+        self.page2.w_skills.set_text(self.tr('Skills monitoring'))
+        self.page2.lx.addWidget(self.page2.w_skills, 1, 0)
 
         self.addPage(self.page1)
         self.addPage(self.page2)
@@ -157,6 +193,23 @@ class AddEditApikeyDialog(QWizard):
             self.page1.le_vcode.setText(self._apikey.vcode)
         elif page_id == 1:
             self.page2.lbl_keytype_v.setText(self._apikey.key_type)
+            self.page2.lbl_accessmask_v.setText(str(self._apikey.access_mask))
+            if self._apikey.expire_ts is None:
+                self.page2.lbl_expires_v.setText(self.tr('Never'))
+            else:
+                s = str(self._apikey.expire_ts)
+                if self._apikey.expired: s += '; ' + self.tr('Expired')
+                self.page2.lbl_expires_v.setText(s)
+            if self._apikey.key_type in ['account', 'character']:
+                # fill characters
+                s = ''
+                for charid in self._apikey.characters.keys():
+                    if s != '': s += ', '
+                    s += self._apikey.characters[charid]['name']
+                self.page2.lbl_characters_v.setText(s)
+            # fill checks grid
+            self.page2.w_basicfuncs.set_ok_status(True)
+            self.page2.w_skills.set_ok_status(True)
 
     def validateCurrentPage(self) -> bool:
         """ This virtual function is called by QWizard when the user clicks Next or Finish
