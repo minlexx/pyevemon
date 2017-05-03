@@ -16,6 +16,7 @@ class LabelWithOkCancelIcon(QWidget):
         self.label = QLabel(self)
         self.layout.addWidget(self.icon_label)
         self.layout.addWidget(self.label)
+        self.layout.addStretch()
         self.pixmap = QPixmap()
         self._ok_status = False
 
