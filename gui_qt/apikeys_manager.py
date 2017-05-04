@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
 
 from core.logger import get_logger
 from core.em_core import get_core_instance, EmCore
-from core.models import EmApiKey
+from core.models import EmApiKey, EveApiAccessMask
 
 from utility_widgets import LabelWithOkCancelIcon
 
@@ -208,8 +208,8 @@ class AddEditApikeyDialog(QWizard):
                     s += self._apikey.characters[charid]['name']
                 self.page2.lbl_characters_v.setText(s)
             # fill checks grid
-            self.page2.w_basicfuncs.set_ok_status(True)
-            self.page2.w_skills.set_ok_status(True)
+            self.page2.w_basicfuncs.set_ok_status(self._check_key_good_basic_info())
+            self.page2.w_skills.set_ok_status(self._check_key_good_skills())
 
     def validateCurrentPage(self) -> bool:
         """ This virtual function is called by QWizard when the user clicks Next or Finish
@@ -257,6 +257,25 @@ class AddEditApikeyDialog(QWizard):
                 self.show_popup_warning(warnmsg)
                 return False
         return True
+
+    def _key_has_mask(self, bitmask: int) -> bool:
+        return (self._apikey.access_mask & bitmask) > 0
+
+    def _check_key_good_basic_info(self):
+        has_charsheet = self._key_has_mask(EveApiAccessMask.CharacterSheet)
+        has_charinfo = self._key_has_mask(EveApiAccessMask.CharacterInfo_public) \
+                       or self._key_has_mask(EveApiAccessMask.CharacterInfo_private)
+        self._logger.debug('has_charsheet={}, has_charinfo={}'.format(has_charsheet, has_charinfo))
+        return has_charsheet and has_charinfo
+
+    def _check_key_good_skills(self):
+        has_skills = self._key_has_mask(EveApiAccessMask.CharacterSheet) \
+                     or self._key_has_mask(EveApiAccessMask.Skills)
+        has_skillintraining = self._key_has_mask(EveApiAccessMask.SkillInTraining)
+        has_skillqueue = self._key_has_mask(EveApiAccessMask.SkillQueue)
+        self._logger.debug('has_skills={}, has_skillqueue={}, has_skillintraining={}'.format(
+            has_skills, has_skillqueue, has_skillintraining))
+        return has_skills and has_skillqueue and has_skillintraining
 
 
 class ApikeysManagerWindow(QWidget):
