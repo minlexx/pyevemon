@@ -4,8 +4,8 @@ import logging
 
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
-from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
-    QPushButton, QLayout, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox, \
+from PyQt5.QtWidgets import QWidget, QLabel, QDialog, QLineEdit,  QPushButton, \
+    QLayout, QLayoutItem, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox, \
     QWizard, QWizardPage
 
 from core.logger import get_logger
@@ -345,7 +345,7 @@ class ApikeysManagerWindow(QWidget):
         self._layout.addLayout(self._layout_top1, 0)
         self._layout.setSizeConstraint(QLayout.SetMinimumSize)
 
-        self.load_keys()
+        self.load_apikeys()
         self.show()
 
     # void QWidget::closeEvent(QCloseEvent * event)
@@ -354,7 +354,7 @@ class ApikeysManagerWindow(QWidget):
         self.mainwindow.apikeysmgrw = None
         close_event.accept()
 
-    def load_keys(self):
+    def load_apikeys(self):
         apikeys = self.emcore.savedata.get_apikeys()
         for apikey in apikeys:
             apikey_widget = SingleApiKeyWidget(self)
@@ -365,6 +365,27 @@ class ApikeysManagerWindow(QWidget):
         #
         self._layout.addStretch()
 
+    def reload_apikeys(self):
+        # clear existing layout
+        lc = self._layout.count()
+        i = lc - 1  # iterate from the end
+        # at index 0 there is a layout_top1
+        # we need items from index 1 and to the end
+        while i > 0:
+            layoutItem = self._layout.itemAt(i)
+            if layoutItem is not None:
+                can_del = False
+                # we can delete only spacers and sub-widgets; skip layouts
+                if layoutItem.spacerItem() is not None:
+                    can_del = True
+                if layoutItem.widget() is not None:
+                    can_del = True
+                if can_del:
+                    self._layout.removeItem(layoutItem)
+                    del layoutItem
+            i -= 1
+        self.load_apikeys()
+
     def start_add_or_edit_apikey(self, keyid: str = None):
         apikey = None
         if keyid is not None:
@@ -374,6 +395,7 @@ class ApikeysManagerWindow(QWidget):
         if exec_res == QDialog.Rejected: return
         # apply added/edited apikey
         self.emcore.savedata.store_apikey(dlg.get_apikey(), check_existing=False)
+        self.reload_apikeys()
 
     def on_click_add_apikey(self):
         self._logger.debug('click')
@@ -385,3 +407,5 @@ class ApikeysManagerWindow(QWidget):
 
     def on_click_remove_apikey(self, keyid: str):
         self._logger.debug('keyid = {}'.format(keyid))
+        self.emcore.savedata.remove_apikey_by_keyid(keyid)
+        self.reload_apikeys()
