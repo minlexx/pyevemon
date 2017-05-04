@@ -104,3 +104,14 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
 
     def __str__(self):
         return 'EmApiKey("{}", "{}")'.format(self.keyid, self.vcode)
+
+    def __eq__(self, other) -> bool:
+        """
+        Api keys compare equal when their keyids are equal
+        :param other: other EmApiKey object
+        :return: True, if other object has the same keyid as me.
+        """
+        if issubclass(other, EmApiKey):
+            if other.keyid == self.keyid:
+                return True
+        return False
