@@ -171,9 +171,19 @@ class AddEditApikeyDialog(QWizard):
         self.page2.w_skills = LabelWithOkCancelIcon(self.page2)
         self.page2.w_skills.set_text(self.tr('Skills monitoring'))
         self.page2.lx.addWidget(self.page2.w_skills, 1, 0)
+        #
+        self.page3 = QWizardPage(self)
+        self.page3.l = QVBoxLayout()
+        self.page3.setLayout(self.page3.l)
+        self.page3.lbl_keyname = QLabel(self.tr('Enter key name:'), self.page3)
+        self.page3.le_keyname = QLineEdit(self)
+        self.page3.l.addWidget(self.page3.lbl_keyname)
+        self.page3.l.addWidget(self.page3.le_keyname)
+        self.page3.registerField('keyname', self.page3.le_keyname)
 
         self.addPage(self.page1)
         self.addPage(self.page2)
+        self.addPage(self.page3)
 
         # wizard options
         self.setOption(QWizard.HaveHelpButton, False)
@@ -202,14 +212,16 @@ class AddEditApikeyDialog(QWizard):
                 self.page2.lbl_expires_v.setText(s)
             if self._apikey.key_type in [EmCore.KEY_TYPE_ACCOUNT, EmCore.KEY_TYPE_CHARACTER]:
                 # fill characters
-                s = ''
-                for charid in self._apikey.characters.keys():
-                    if s != '': s += ', '
-                    s += self._apikey.characters[charid]['name']
-                self.page2.lbl_characters_v.setText(s)
+                self.page2.lbl_characters_v.setText(self._construct_apikeys_characters_str())
             # fill checks grid
             self.page2.w_basicfuncs.set_ok_status(self._check_key_good_basic_info())
             self.page2.w_skills.set_ok_status(self._check_key_good_skills())
+        elif page_id == 2:
+            keyname = self._construct_apikeys_characters_str()
+            if self._apikey.friendly_name is not None:
+                if self._apikey.friendly_name != '':
+                    keyname = self._apikey.friendly_name
+            self.page3.le_keyname.setText(keyname)
 
     def validateCurrentPage(self) -> bool:
         """ This virtual function is called by QWizard when the user clicks Next or Finish
@@ -226,6 +238,7 @@ class AddEditApikeyDialog(QWizard):
             if not self._apikey.is_valid():
                 self.show_popup_warning(self.tr('Invalid input!'))
                 return False
+            # get apikey info from EVE API
             emcore = get_core_instance()
             emcore.set_apikey(self._apikey)
             keyinfo = emcore.api_call('account/APIKeyInfo')
@@ -256,7 +269,7 @@ class AddEditApikeyDialog(QWizard):
                     warnmsg += '\n' + self.tr('Error message was:') + ' ' + le[1]
                 self.show_popup_warning(warnmsg)
                 return False
-        if page_id == 1:
+        elif page_id == 1:
             if self._apikey.key_type == EmCore.KEY_TYPE_CORPORATION:
                 self.show_popup_warning(self.tr('Cannot monitor corporation API keys.'))
                 return False
@@ -264,7 +277,20 @@ class AddEditApikeyDialog(QWizard):
                 self.show_popup_warning(self.tr('This key has too restricted access mask, \n'
                                                 'it cannot be used even for basic information.'))
                 return False
+        elif page_id == 2:
+            keyname = self.field('keyname')
+            if keyname == '':
+                self.show_popup_warning(self.tr('Key friendly name should not be empty!'))
+                return False
+            self._apikey.friendly_name = keyname
         return True
+
+    def _construct_apikeys_characters_str(self) -> str:
+        s = ''
+        for charid in self._apikey.characters.keys():
+            if s != '': s += ', '
+            s += self._apikey.characters[charid]['name']
+        return s
 
     def _key_has_mask(self, bitmask: int) -> bool:
         return (self._apikey.access_mask & bitmask) > 0
@@ -347,7 +373,7 @@ class ApikeysManagerWindow(QWidget):
         exec_res = dlg.exec_()
         if exec_res == QDialog.Rejected: return
         # apply added/edited apikey
-        self.emcore.savedata.store_apikey(dlg.get_apikey())
+        self.emcore.savedata.store_apikey(dlg.get_apikey(), check_existing=False)
 
     def on_click_add_apikey(self):
         self._logger.debug('click')
