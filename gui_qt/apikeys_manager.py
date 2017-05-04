@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QComboBox, QDialog, QLineEdit, \
     QWizard, QWizardPage
 
 from core.logger import get_logger
-from core.em_core import get_core_instance
+from core.em_core import get_core_instance, EmCore
 from core.models import EmApiKey
 
 from utility_widgets import LabelWithOkCancelIcon
@@ -200,7 +200,7 @@ class AddEditApikeyDialog(QWizard):
                 s = str(self._apikey.expire_ts)
                 if self._apikey.expired: s += '; ' + self.tr('Expired')
                 self.page2.lbl_expires_v.setText(s)
-            if self._apikey.key_type in ['account', 'character']:
+            if self._apikey.key_type in [EmCore.KEY_TYPE_ACCOUNT, EmCore.KEY_TYPE_CHARACTER]:
                 # fill characters
                 s = ''
                 for charid in self._apikey.characters.keys():

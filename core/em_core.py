@@ -10,6 +10,7 @@ import version
 
 import evelink.api
 import evelink.account
+import evelink.constants
 import evelink.char
 import evelink.eve
 import evelink.server
@@ -18,6 +19,12 @@ _g_emcore_instance = None
 
 
 class EmCore:
+
+    # Api key types
+    KEY_TYPE_ACCOUNT = evelink.constants.ACCOUNT
+    KEY_TYPE_CHARACTER = evelink.constants.CHARACTER
+    KEY_TYPE_CORPORATION = evelink.constants.CORPORATION
+
     def __init__(self):
         self._logger = core.logger.get_logger(__name__, logging.DEBUG)
         self.savedata = core.savedata.SaveData()
