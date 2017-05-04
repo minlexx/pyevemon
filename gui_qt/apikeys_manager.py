@@ -256,6 +256,14 @@ class AddEditApikeyDialog(QWizard):
                     warnmsg += '\n' + self.tr('Error message was:') + ' ' + le[1]
                 self.show_popup_warning(warnmsg)
                 return False
+        if page_id == 1:
+            if self._apikey.key_type == EmCore.KEY_TYPE_CORPORATION:
+                self.show_popup_warning(self.tr('Cannot monitor corporation API keys.'))
+                return False
+            if not self._check_key_good_basic_info():
+                self.show_popup_warning(self.tr('This key has too restricted access mask, \n'
+                                                'it cannot be used even for basic information.'))
+                return False
         return True
 
     def _key_has_mask(self, bitmask: int) -> bool:
