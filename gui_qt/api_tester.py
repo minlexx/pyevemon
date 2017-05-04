@@ -178,7 +178,7 @@ class ApitestMainWindow(QWidget):
             return
         apikey = EmApiKey(keyid, vcode)
         if apikey.is_valid():
-            self.emcore.savedata.store_apikey(apikey)
+            self.emcore.savedata.store_apikey(apikey, check_existing=True)
             # reload existing api keys
             self.fill_apikeys()
         else:

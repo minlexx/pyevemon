@@ -82,12 +82,19 @@ class SaveData:
         ret = self.sql_session.query(EmApiKey).filter_by(keyid=keyid).one_or_none()
         return ret
 
-    def store_apikey(self, apikey: EmApiKey):
+    def store_apikey(self, apikey: EmApiKey, check_existing: bool=True):
         res = self.sql_session.query(EmApiKey).filter_by(keyid=apikey.keyid).one_or_none()
+        can_add = True
+        if check_existing and (res is not None):
+            can_add = False  # already exists
+        if not can_add:
+            self._logger.error('SaveData: cannot add new apikey, already exists: {}'.format(apikey))
+            return False
         if res is None:
-            self.sql_session.add(apikey)
-            self.sql_session.commit()
-            self._logger.debug('SaveData: Stored apikey: {}'.format(apikey))
-            return True
-        self._logger.error('SaveData: cannot add new apikey, already exists: {}'.format(apikey))
-        return False
+            self.sql_session.add(apikey)  # add new
+        else:
+            apikey.id = res.id  # make sure primary keys match before merging
+            self.sql_session.merge(apikey)  # update existing
+        self.sql_session.commit()
+        self._logger.debug('SaveData: Stored apikey: {}'.format(apikey))
+        return True
