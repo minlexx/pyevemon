@@ -98,3 +98,7 @@ class SaveData:
         self.sql_session.commit()
         self._logger.debug('SaveData: Stored apikey: {}'.format(apikey))
         return True
+
+    def remove_apikey_by_keyid(self, keyid: str):
+        self.sql_session.query(EmApiKey).filter_by(keyid=keyid).delete()
+        self.sql_session.commit()
