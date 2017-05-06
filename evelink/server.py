@@ -1,6 +1,5 @@
 from evelink import api
 
-
 class Server(object):
     """Wrapper around /server/ of the EVE API."""
 

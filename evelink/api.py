@@ -45,14 +45,12 @@ except ImportError:
     _log.info('`requests` not available, falling back to urllib2')
     _has_requests = None
 
-
 def _clean(v):
     """Convert parameters into an acceptable format for the API."""
     if isinstance(v, (list, set, tuple)):
         return ",".join(str(i) for i in v)
     else:
         return str(v)
-
 
 def decompress(s):
     """Decode a gzip compressed string."""
@@ -143,12 +141,10 @@ def parse_keyval_data(data_string):
         results[key] = val
     return results
 
-
 def parse_ms_date(date_string):
     """Convert MS date format into epoch"""
 
-    return int(date_string)/10000000 - 11644473600
-
+    return int(date_string)/10000000 - 11644473600;
 
 class APIError(Exception):
     """Exception raised when the EVE API returns an error."""
@@ -165,7 +161,6 @@ class APIError(Exception):
 
     def __str__(self):
         return "%s (code=%d)" % (self.message, int(self.code))
-
 
 class APICache(object):
     """Minimal interface for caching API requests.
@@ -412,7 +407,6 @@ def translate_args(args, mapping=None):
     """Translate python name variable into API parameter name."""
     mapping = mapping if mapping else {}
     return dict((mapping[k], v,) for k, v in args.items())
-
 
 # TODO: needs better name
 def get_args_and_defaults(func):

@@ -2,7 +2,6 @@ import shelve
 
 from evelink import api
 
-
 class ShelveCache(api.APICache):
     """An implementation of APICache using shelve."""
 

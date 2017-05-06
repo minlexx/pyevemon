@@ -12,10 +12,8 @@ _role_type_bases = {
     'at_other': 'AtOther',
 }
 
-
 class Char(object):
     corp_roles = dict((k, 'corporationRoles' + v) for k,v in _role_type_bases.items())
-
 
 class Corp(object):
     role_types = dict((k, 'roles' + v) for k,v in _role_type_bases.items())
@@ -30,14 +28,11 @@ class Corp(object):
             'Alliance Members',
         )
 
-
 class Industry(object):
     job_status = ('failed', 'delivered', 'aborted', 'gm-aborted', 'inflight-unanchored', 'destroyed')
 
-
 class Market(object):
     order_status = ('active', 'closed', 'expired', 'cancelled', 'pending', 'deleted')
-
 
 class APIKey(object):
     key_types = {

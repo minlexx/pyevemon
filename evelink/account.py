@@ -1,7 +1,6 @@
 from evelink import api
 from evelink import constants
 
-
 class Account(object):
     """Wrapper around /account/ of the EVE API.
 

@@ -4,7 +4,6 @@ import sqlite3
 
 from evelink import api
 
-
 class SqliteCache(api.APICache):
     """An implementation of APICache using sqlite."""
 

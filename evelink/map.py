@@ -1,6 +1,5 @@
 from evelink import api
 
-
 class Map(object):
     """Wrapper around /map/ of the EVE API."""
 

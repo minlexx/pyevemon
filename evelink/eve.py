@@ -1,6 +1,5 @@
 from evelink import api
 
-
 class EVE(object):
     """Wrapper around /eve/ of the EVE API."""
 
@@ -358,6 +357,7 @@ class EVE(object):
                     skill_info['name'] = name_cache.get(skill_id)
 
         return api.APIResult(results, api_result.timestamp, api_result.expires)
+
 
     @api.auto_call('eve/RefTypes')
     def reference_types(self, api_result=None):
