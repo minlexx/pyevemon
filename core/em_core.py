@@ -8,6 +8,7 @@ import core.em_cache
 import core.models
 import version
 
+import evelink
 import evelink.api
 import evelink.account
 import evelink.constants
@@ -33,8 +34,8 @@ class EmCore:
         # create evelink API object
         ver = version.get_pyevemon_version()
         # "pyevemon/0.1 (alexey.min@gmail.com)"
-        self.user_agent_str = '{}/{} ({})'.format(
-            ver['app_name'], ver['version'], ver['author_email'])
+        self.user_agent_str = '{}/{} ({}) evelink/{}'.format(
+            ver['app_name'], ver['version'], ver['author_email'], evelink.__version__)
         self.api = evelink.api.API(cache=self.cache, user_agent=self.user_agent_str)
         self.apicalls_dict = {}
         self._last_error_code = 0

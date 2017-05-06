@@ -8,6 +8,8 @@ from PyQt5.QtWidgets import QWidget, QMenuBar, QMenu, QAction, QMainWindow, QMes
 from core.logger import get_logger
 from core.em_core import get_core_instance
 
+import evelink
+
 from version import get_pyevemon_version
 
 from .api_tester import ApitestMainWindow
@@ -63,6 +65,7 @@ class QtEmMainWindow(QMainWindow):
         text = v['version_str'] + '\n'
         text += '\n' + self.tr('Website') + ': ' + v['website_url']
         text += '\n' + self.tr('Author') + ': ' + v['author_name'] + ' (' + v['author_email'] + ')'
+        text += '\nUsing evelink library, version {}'.format(evelink.__version__)
         QMessageBox.about(self, title, text)
 
     @pyqtSlot(bool)

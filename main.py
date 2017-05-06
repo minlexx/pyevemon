@@ -10,6 +10,7 @@ import sys
 import version
 import core.logger
 import core.em_core
+import evelink
 
 
 # def custom_unhandled_handler_func(bound_param, exc_type, exc_value, exc_traceback):
@@ -25,10 +26,11 @@ def main():
     ver = version.get_pyevemon_version()
 
     is_64bit = '64 bit' in sys.version
-    logger.info('{} version {}. Using python-{}.{}.{} {}'.format(
+    logger.info('{} version {}. Using python-{}.{}.{} {}, evelink-{}'.format(
         ver['app_displayname'], ver['version'],
         sys.version_info.major, sys.version_info.minor, sys.version_info.micro,
-        ('(64 bit)' if is_64bit else '(32 bit)')
+        ('(64 bit)' if is_64bit else '(32 bit)'),
+        evelink.__version__
     ))
 
     ap = argparse.ArgumentParser(prog=sys.argv[0], add_help=True,
