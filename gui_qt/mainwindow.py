@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtGui import QGuiApplication, QIcon
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QWidget, QMenuBar, QMenu, QAction, QMainWindow, QMessageBox
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QMenu, QAction, QMainWindow, QMessageBox, QTabWidget
 
 from core.logger import get_logger
 from core.em_core import get_core_instance, get_evelink_version_str
@@ -24,32 +24,57 @@ class QtEmMainWindow(QMainWindow):
         self.icon = QIcon('img/pyevemon.png')
         self.setWindowIcon(self.icon)
 
-        # Construct menu
-        self.menubar = self.menuBar()
-        menu = QMenu(self.tr('API Keys'), self.menubar)
-        action = menu.addAction(self.tr('Manage API keys...'))
-        action.triggered.connect(self.on_action_manage_apikeys)
-        self.menubar.addMenu(menu)
+        self.create_actions()
+        self.create_menu()
 
-        menu = QMenu(self.tr('Tools'), self.menubar)
-        action = menu.addAction(self.tr('API Tester'))
-        action.triggered.connect(self.on_action_api_tester)
-        self.menubar.addMenu(menu)
+        self.init_layout()
+        self.create_tabs()
 
-        menu = QMenu(self.tr('Help'), self.menubar)
-        action = menu.addAction(self.tr('About...'))
-        action.triggered.connect(self.on_action_about)
-        action = menu.addAction(self.tr('About Qt...'))
-        action.triggered.connect(self.on_action_about_qt)
-        self.menubar.addMenu(menu)
-
-        # child windows
+        # child popup windows
         self.apitmw = None
         self.apikeysmgrw = None
 
+    def init_layout(self):
+        # tab container
+        self.tabwidget = QTabWidget(self)
+        self.setCentralWidget(self.tabwidget)
+
+    def create_actions(self):
+        # QAction(const QString &text, QObject *parent = nullptr)
+        self.action_manage_apikeys = QAction(self.tr('Manage API keys...'), self)
+        self.action_manage_apikeys.triggered.connect(self.on_action_manage_apikeys)
+        self.action_api_tester = QAction(self.tr('API Tester'), self)
+        self.action_api_tester.triggered.connect(self.on_action_api_tester)
+        self.action_about = QAction(self.tr('About...'), self)
+        self.action_about.triggered.connect(self.on_action_about)
+        self.action_about_qt = QAction(self.tr('About Qt...'), self)
+        self.action_about_qt.triggered.connect(self.on_action_about_qt)
+
+    def create_menu(self):
+        # Construct menu; Api Keys
+        self.menubar = self.menuBar()
+        menu = QMenu(self.tr('API Keys'), self.menubar)
+        menu.addAction(self.action_manage_apikeys)
+        self.menubar.addMenu(menu)
+        # Tools
+        menu = QMenu(self.tr('Tools'), self.menubar)
+        menu.addAction(self.action_api_tester)
+        self.menubar.addMenu(menu)
+        # Help
+        menu = QMenu(self.tr('Help'), self.menubar)
+        menu.addAction(self.action_about)
+        menu.addAction(self.action_about_qt)
+        self.menubar.addMenu(menu)
+
+    def create_tabs(self):
+        pass
+
+    def recreate_tabs(self):
+        # TODO: delete all tabs
+        self.create_tabs()
+
     @pyqtSlot(bool)
     def on_action_api_tester(self, checked: bool = False):
-        # self._logger.debug('on_action_api_tester(): checked = {}'.format(checked))
         if self.apitmw is None:
             self.apitmw = ApitestMainWindow()
             self.apitmw.mainwindow = self
