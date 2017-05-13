@@ -320,7 +320,7 @@ class ApikeysManagerWindow(QWidget):
         self.emcore = get_core_instance()
         self.api_keys = []
 
-        self.setMinimumSize(300, 100)
+        self.setMinimumSize(500, 200)
         self.icon = QIcon('img/pyevemon.png')
         self.setWindowIcon(self.icon)
         self.setWindowTitle(self.tr('API Keys Manager'))

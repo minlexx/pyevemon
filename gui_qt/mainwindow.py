@@ -20,7 +20,7 @@ class QtEmMainWindow(QMainWindow):
         self.evemon = get_core_instance()
         self._logger.debug('Constructed window!')
 
-        self.setMinimumSize(400, 300)
+        self.setMinimumSize(640, 480)
         self.icon = QIcon('img/pyevemon.png')
         self.setWindowIcon(self.icon)
 
