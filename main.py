@@ -36,6 +36,7 @@ def main():
     ap = argparse.ArgumentParser(prog=sys.argv[0], add_help=True,
                                  description='EVE Online character monitor using python, '
                                              'with a GUI frontend')
+    ap.add_argument('--debug', action='store_true', help='Enable more debug output')
     ap.add_argument('--version', action='version', version=ver['version_str'])
     ap.add_argument('--gui', action='store', nargs='?', const='qt', default='qt', type=str,
                     choices=['qt'])
