@@ -19,19 +19,7 @@ import evelink
 
 
 def main():
-    logger = core.logger.get_logger(__name__, logging.DEBUG)
-    core.logger.init_unhandled_exception_handling('unhandled_exceptions.log')
-    # core.logger.add_unhandled_exception_handler(custom_unhandled_handler_func, 123)
-
     ver = version.get_pyevemon_version()
-
-    is_64bit = '64 bit' in sys.version
-    logger.info('{} version {}. Using python-{}.{}.{} {}, evelink-{}'.format(
-        ver['app_displayname'], ver['version'],
-        sys.version_info.major, sys.version_info.minor, sys.version_info.micro,
-        ('(64 bit)' if is_64bit else '(32 bit)'),
-        evelink.__version__
-    ))
 
     ap = argparse.ArgumentParser(prog=sys.argv[0], add_help=True,
                                  description='EVE Online character monitor using python, '
@@ -41,6 +29,25 @@ def main():
     ap.add_argument('--gui', action='store', nargs='?', const='qt', default='qt', type=str,
                     choices=['qt'])
     args = ap.parse_args()
+
+    # setup main logger only after arguments were parsed.
+    # setup logging level before any logger is created
+    core.logger.set_loglevel(logging.INFO)
+    if args.debug:
+        core.logger.set_loglevel(logging.DEBUG)
+    core.logger.init_unhandled_exception_handling('unhandled_exceptions.log')
+    # core.logger.add_unhandled_exception_handler(custom_unhandled_handler_func, 123)
+
+    # my local logger object
+    logger = core.logger.get_logger(__name__)
+
+    is_64bit = '64 bit' in sys.version
+    logger.info('{} version {}. Using python-{}.{}.{} {}, evelink-{}'.format(
+        ver['app_displayname'], ver['version'],
+        sys.version_info.major, sys.version_info.minor, sys.version_info.micro,
+        ('(64 bit)' if is_64bit else '(32 bit)'),
+        evelink.__version__
+    ))
 
     frozen = getattr(sys, 'frozen', False)
     if frozen:
