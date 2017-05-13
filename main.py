@@ -10,7 +10,6 @@ import sys
 import version
 import core.logger
 import core.em_core
-import evelink
 
 
 # def custom_unhandled_handler_func(bound_param, exc_type, exc_value, exc_traceback):
@@ -20,12 +19,13 @@ import evelink
 
 def main():
     ver = version.get_pyevemon_version()
+    verstr = '{}; evelink version {}'.format(ver['version_str'], core.em_core.get_evelink_version_str())
 
     ap = argparse.ArgumentParser(prog=sys.argv[0], add_help=True,
                                  description='EVE Online character monitor using python, '
                                              'with a GUI frontend')
     ap.add_argument('--debug', action='store_true', help='Enable more debug output')
-    ap.add_argument('--version', action='version', version=ver['version_str'])
+    ap.add_argument('--version', action='version', version=verstr)
     ap.add_argument('--gui', action='store', nargs='?', const='qt', default='qt', type=str,
                     choices=['qt'])
     args = ap.parse_args()
@@ -46,7 +46,7 @@ def main():
         ver['app_displayname'], ver['version'],
         sys.version_info.major, sys.version_info.minor, sys.version_info.micro,
         ('(64 bit)' if is_64bit else '(32 bit)'),
-        evelink.__version__
+        core.em_core.get_evelink_version_str()
     ))
 
     frozen = getattr(sys, 'frozen', False)

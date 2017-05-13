@@ -17,6 +17,10 @@ import evelink.server
 _g_emcore_instance = None
 
 
+def get_evelink_version_str() ->str:
+    return evelink.__version__
+
+
 class EmCore:
 
     # Api key types
