@@ -22,13 +22,19 @@ def get_savedata_directory() -> str:
             sdir = os.environ['USERPROILE']
         sdir += '\\pyevemon'
     elif sys.platform == 'linux':
-        sdir = os.environ['HOME']
-        if os.path.isdir(sdir + '/.config'):
-            sdir += '/.config/.pyevemon'  # /home/user/.config/pyevemon
+        # follow freedesktop XDG specification
+        if 'XDG_CONFIG_HOME' in os.environ:
+            sdir = os.environ['XDG_CONFIG_HOME']
+            sdir += '/pyevemon'  # /home/user/.config/pyevemon
         else:
-            sdir += '/.pyevemon'          # /home/user/.pyevemon
+            sdir = os.environ['HOME']
+            # try common config location
+            if os.path.isdir(sdir + '/.config'):
+                sdir += '/.config/pyevemon'  # /home/user/.config/pyevemon
+            else:
+                sdir += '/.pyevemon'          # /home/user/.pyevemon
     else:
-        raise RuntimeError('Cannot detect your OS version!')
+        raise RuntimeError('Cannot detect your OS!')
     # create save directory if it does not exist
     p = pathlib.Path(sdir)
     if not (p.exists() and p.is_dir()):
