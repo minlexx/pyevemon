@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 
 from PyQt5.QtGui import QGuiApplication, QIcon
 from PyQt5.QtCore import pyqtSignal, pyqtSlot
@@ -19,7 +18,7 @@ from .apikeys_manager import ApikeysManagerWindow
 class QtEmMainWindow(QMainWindow):
     def __init__(self):
         super(QtEmMainWindow, self).__init__(parent=None)
-        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__)
         self.evemon = get_core_instance()
         self._logger.debug('Constructed window!')
 

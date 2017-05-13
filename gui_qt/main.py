@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 import sys
 
 import sip
@@ -13,7 +12,7 @@ import gui_qt.mainwindow
 
 
 def start_gui():
-    logger = core.logger.get_logger(__name__, logging.DEBUG)
+    logger = core.logger.get_logger(__name__)
     logger.info('Qt gui starting, PyQt5 version: {}; sip version: {}'.format(
         PYQT_VERSION_STR, sip.SIP_VERSION_STR))
 

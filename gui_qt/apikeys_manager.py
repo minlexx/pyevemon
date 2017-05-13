@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import logging
 
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
@@ -22,7 +21,7 @@ class SingleApiKeyWidget(QWidget):
 
     def __init__(self, parent):
         super(SingleApiKeyWidget, self).__init__(parent)
-        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__)
         #
         self._layout = QHBoxLayout()
         self._layout.setSpacing(0)
@@ -89,7 +88,7 @@ class AddEditApikeyDialog(QWizard):
     def __init__(self, parent: QWidget, apikey: EmApiKey = None):
         super(AddEditApikeyDialog, self).__init__(parent)
 
-        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__)
         self._apikey = EmApiKey()
         if apikey is not None:
             self._apikey.keyid = apikey.keyid
@@ -315,7 +314,7 @@ class AddEditApikeyDialog(QWizard):
 class ApikeysManagerWindow(QWidget):
     def __init__(self, parent: QWidget = None):
         super(ApikeysManagerWindow, self).__init__(parent=parent)
-        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__)
         self._logger.debug('Constructed window!')
         self.mainwindow = None
         self.emcore = get_core_instance()

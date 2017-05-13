@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
-
 import core.os_utils
 import core.logger
 
@@ -15,7 +13,7 @@ class SaveData:
     current_db_revision = 3
 
     def __init__(self):
-        self._logger = core.logger.get_logger(__name__, logging.DEBUG)
+        self._logger = core.logger.get_logger(__name__)
         self.user_settings_file = core.os_utils.get_savedata_directory() + '/settings.db'
         self._logger.debug('SaveData: using savedata file: {}'.format(self.user_settings_file))
         self._logger.info('SaveData: SQLAlchemy version: {}'.format(sqlalchemy.__version__))

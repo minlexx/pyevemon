@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import logging
 
 from PyQt5.QtGui import QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSlot
@@ -15,7 +14,7 @@ from core.models import EmApiKey
 class ApitestMainWindow(QWidget):
     def __init__(self, parent: QWidget = None):
         super(ApitestMainWindow, self).__init__(parent=parent)
-        self._logger = get_logger(__name__, logging.DEBUG)
+        self._logger = get_logger(__name__)
         self._logger.debug('Constructed window!')
         self.mainwindow = None
         self.emcore = get_core_instance()

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
-
 import core.logger
 import core.evedata
 import core.savedata
@@ -27,7 +25,7 @@ class EmCore:
     KEY_TYPE_CORPORATION = evelink.constants.CORPORATION
 
     def __init__(self):
-        self._logger = core.logger.get_logger(__name__, logging.DEBUG)
+        self._logger = core.logger.get_logger(__name__)
         self.savedata = core.savedata.SaveData()
         self.evedata = core.evedata.EVEData()
         self.cache = core.em_cache.EmCache()

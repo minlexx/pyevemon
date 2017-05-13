@@ -6,6 +6,7 @@ import sys
 import core.os_utils
 
 
+_g_evemon_default_logger_level = logging.DEBUG
 _g_evemon_console_log_handler = None
 _g_evemon_rotating_log_handler = None
 _g_evemon_unhandled_exception_logger = None
@@ -13,7 +14,8 @@ _g_evemon_unhandled_exception_handlers = []
 _g_evemon_unhandled_exception_params = {}
 
 
-def get_logger(tag: str, level: int = logging.DEBUG) -> logging.Logger:
+def get_logger(tag: str) -> logging.Logger:
+    global _g_evemon_default_logger_level
     global _g_evemon_console_log_handler
     global _g_evemon_rotating_log_handler
 
@@ -38,7 +40,7 @@ def get_logger(tag: str, level: int = logging.DEBUG) -> logging.Logger:
 
     # create logger
     logger = logging.getLogger(tag)
-    logger.setLevel(level)
+    logger.setLevel(_g_evemon_default_logger_level)
 
     # add our global to logger
     logger.addHandler(_g_evemon_console_log_handler)
