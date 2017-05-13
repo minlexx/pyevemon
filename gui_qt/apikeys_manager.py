@@ -12,7 +12,7 @@ from core.logger import get_logger
 from core.em_core import get_core_instance, EmCore
 from core.models import EmApiKey, EveApiAccessMask
 
-from utility_widgets import LabelWithOkCancelIcon
+from .utility_widgets import LabelWithOkCancelIcon
 
 
 class SingleApiKeyWidget(QWidget):
