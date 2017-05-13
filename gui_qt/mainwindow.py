@@ -11,6 +11,7 @@ from version import get_pyevemon_version
 
 from .api_tester import ApitestMainWindow
 from .apikeys_manager import ApikeysManagerWindow
+from .tabs import OverviewTab
 
 
 class QtEmMainWindow(QMainWindow):
@@ -67,7 +68,12 @@ class QtEmMainWindow(QMainWindow):
         self.menubar.addMenu(menu)
 
     def create_tabs(self):
-        pass
+        self.tabs = []
+        tab = OverviewTab(self.tabwidget)
+        self.tabs.append(tab)
+        # int addTab(QWidget *page, const QString &label)
+        tab_idx = self.tabwidget.addTab(tab, self.tr('Overview'))
+        self._logger.debug('add overview tab at index = {}'.format(tab_idx))
 
     def recreate_tabs(self):
         # TODO: delete all tabs
