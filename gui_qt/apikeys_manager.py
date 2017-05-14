@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 
-import sip
+import sip  # for sip.delete, to call C++ destructor
 
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
@@ -384,7 +384,7 @@ class ApikeysManagerWindow(QWidget):
                     if widget is not None:
                         widget.hide()
                         widget.setParent(None)  # from stackoverflow :/
-                        sip.delete(widget)
+                        sip.delete(widget)  # calls destructor for wrapped C++ object
                         del widget
                 sip.delete(layoutItem)
                 del layoutItem
