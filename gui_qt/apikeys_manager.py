@@ -320,7 +320,6 @@ class ApikeysManagerWindow(QWidget):
         self._logger.debug('Constructed window!')
         self.mainwindow = None
         self.emcore = get_core_instance()
-        #self.api_keys = []
 
         self.setMinimumSize(500, 200)
         self.icon = QIcon('img/pyevemon.png')
