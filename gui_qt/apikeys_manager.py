@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
 
+import sip
+
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QDialog, QLineEdit,  QPushButton, \
@@ -318,7 +320,7 @@ class ApikeysManagerWindow(QWidget):
         self._logger.debug('Constructed window!')
         self.mainwindow = None
         self.emcore = get_core_instance()
-        self.api_keys = []
+        #self.api_keys = []
 
         self.setMinimumSize(500, 200)
         self.icon = QIcon('img/pyevemon.png')
@@ -371,17 +373,35 @@ class ApikeysManagerWindow(QWidget):
         # at index 0 there is a layout_top1
         # we need items from index 1 and to the end
         while i > 0:
-            layoutItem = self._layout.itemAt(i)
+            # layoutItem = self._layout.itemAt(i)
+            layoutItem = self._layout.takeAt(i)
             if layoutItem is not None:
-                can_del = False
-                # we can delete only spacers and sub-widgets; skip layouts
-                if layoutItem.spacerItem() is not None:
-                    can_del = True
+                # can_del = False
+                self._logger.debug('Deleting -> {}'.format(str(layoutItem)))
                 if layoutItem.widget() is not None:
-                    can_del = True
-                if can_del:
-                    self._layout.removeItem(layoutItem)
-                    del layoutItem
+                    # from Qt docs: Note: While the functions layout() and spacerItem()
+                    # perform casts, this function returns another object: QLayout and
+                    # QSpacerItem inherit QLayoutItem, while QWidget does not.
+                    # so, we must delete widget separately.
+                    widget = layoutItem.widget()
+                    widget.hide()
+                    widget.setParent(None)
+                    sip.delete(widget)
+                    del widget
+                sip.delete(layoutItem)
+                del layoutItem
+                # we can delete only spacers and sub-widgets; skip layouts
+                #if layoutItem.spacerItem() is not None:
+                #    can_del = True
+                #if layoutItem.widget() is not None:
+                #    can_del = True
+                #if can_del:
+                #    self._layout.removeItem(layoutItem)
+                #    if layoutItem.widget():
+                #        layoutItem.hide()
+                #        layoutItem.deleteLater()
+                #    sip.delete()
+                #    del layoutItem
             i -= 1
         self.load_apikeys()
 
