@@ -44,6 +44,8 @@ class QtEmMainWindow(QMainWindow):
         # QAction(const QString &text, QObject *parent = nullptr)
         self.action_manage_apikeys = QAction(self.tr('Manage API keys...'), self)
         self.action_manage_apikeys.triggered.connect(self.on_action_manage_apikeys)
+        self.action_select_characters = QAction(self.tr('Select characters...'), self)
+        self.action_select_characters.triggered.connect(self.on_action_select_characters)
         self.action_api_tester = QAction(self.tr('API Tester'), self)
         self.action_api_tester.triggered.connect(self.on_action_api_tester)
         self.action_about = QAction(self.tr('About...'), self)
@@ -54,8 +56,9 @@ class QtEmMainWindow(QMainWindow):
     def create_menu(self):
         # Construct menu; Api Keys
         self.menubar = self.menuBar()
-        menu = QMenu(self.tr('API Keys'), self.menubar)
+        menu = QMenu(self.tr('Characters'), self.menubar)
         menu.addAction(self.action_manage_apikeys)
+        menu.addAction(self.action_select_characters)
         self.menubar.addMenu(menu)
         # Tools
         menu = QMenu(self.tr('Tools'), self.menubar)
@@ -106,3 +109,7 @@ class QtEmMainWindow(QMainWindow):
             self.apikeysmgrw = ApikeysManagerWindow()
             self.apikeysmgrw.mainwindow = self
         self.apikeysmgrw.raise_()
+
+    @pyqtSlot(bool)
+    def on_action_select_characters(self, checked: bool = False):
+        self._logger.debug('on_action_select_characters')
