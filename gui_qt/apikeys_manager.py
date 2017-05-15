@@ -93,11 +93,9 @@ class AddEditApikeyDialog(QWizard):
         self._logger = get_logger(__name__)
         self._apikey = EmApiKey()
         if apikey is not None:
-            self._apikey.keyid = apikey.keyid
-            self._apikey.vcode = apikey.vcode
-            self._apikey.friendly_name = ''
-            if apikey.friendly_name is not None:
-                self._apikey.friendly_name = apikey.friendly_name
+            self._apikey = apikey  # copy reference to existing object, bound to DB
+            if self._apikey.friendly_name is None:
+                self._apikey.friendly_name = ''
 
         self.setSizeGripEnabled(True)
         self.setMinimumSize(300, 200)
@@ -181,7 +179,7 @@ class AddEditApikeyDialog(QWizard):
         self.page3.setLayout(self.page3.l)
         self.page3.lbl_keyname = QLabel(self.tr('Enter key name:'), self.page3)
         self.page3.le_keyname = QLineEdit(self)
-        self.page3.gb = QGroupBox(self.tr('Select characters to use:'), self.page3)
+        self.page3.gb = QGroupBox(self.tr('Select characters to import:'), self.page3)
         self.page3.gb.setCheckable(False)
         self.page3.gb.setFlat(False)
         self.page3.gb.setLayout(self.page3.lgb)
@@ -233,23 +231,7 @@ class AddEditApikeyDialog(QWizard):
                 if self._apikey.friendly_name != '':
                     keyname = self._apikey.friendly_name
             self.page3.le_keyname.setText(keyname)
-            # clear characters groupbox from existing checkboxes
-            itemcnt = self.page3.lgb.count()
-            while itemcnt > 0:
-                layout_item = self.page3.lgb.takeAt(0)
-                cb_widget = layout_item.widget()
-                if cb_widget is not None:
-                    cb_widget.hide()
-                    cb_widget.setParent(None)
-                    sip.delete(cb_widget)
-                    del cb_widget
-                sip.delete(layout_item)
-                itemcnt -= 1
-            # add character checkboxes to groupbox
-            for char in self._apikey.apikey_characters:
-                print(char)
-                cb = QCheckBox(char.charname, self.page3)
-                self.page3.lgb.addWidget(cb)
+            self._recreate_characters_checkboxes()
 
     def validateCurrentPage(self) -> bool:
         """ This virtual function is called by QWizard when the user clicks Next or Finish
@@ -279,6 +261,15 @@ class AddEditApikeyDialog(QWizard):
                 if type(keyinfo) == dict:
                     self._apikey.key_type = str(keyinfo['type'])
                     self._apikey.characters = keyinfo['characters']
+                    #
+                    # probably, temporarily store selected states of already
+                    #  existing character in this apikey?
+                    saved_selected_chars = {}
+                    if len(self._apikey.apikey_characters) > 0:
+                        for char in self._apikey.apikey_characters:
+                            saved_selected_chars[str(char.charid)] = char.is_selected
+                    # re-add all characters to apikey again. new data may have come from API response
+                    # so we refresh existing information about characters
                     self._apikey.apikey_characters = []
                     #
                     for charid in self._apikey.characters.keys():
@@ -290,6 +281,12 @@ class AddEditApikeyDialog(QWizard):
                         # self._apikey.apikey_characters.append(char)
                         # ^^ not needed, because assignment to char.bound_apikey already appends
                         #    this caharacter to owner apikey's list of characters (!)
+                        # restore selected state
+                        if str(char.charid) in saved_selected_chars.keys():
+                            char.is_selected = saved_selected_chars[str(char.charid)]
+                        # Fix None to False
+                        if char.is_selected is None:
+                            char.is_selected = False
                     #
                     self._apikey.access_mask = int(keyinfo['access_mask'])
                     self._apikey.expire_ts = keyinfo['expire_ts']
@@ -323,7 +320,17 @@ class AddEditApikeyDialog(QWizard):
                 self.show_popup_warning(self.tr('Key friendly name should not be empty!'))
                 return False
             self._apikey.friendly_name = keyname
-            # TODO: get checked characters
+            # query all checkboxes about their checked state
+            for cb in self.page3.char_checkboxes:
+                if isinstance(cb, QCheckBox):
+                    charname = cb.text()
+                    is_selected = cb.isChecked()
+                    self._logger.debug('Wizard finish: char {} is selected: {}'.format(
+                        charname, is_selected))
+                    # update selected state for characters in returned apikey
+                    for char in self._apikey.apikey_characters:
+                        if char.charname == charname:
+                            char.is_selected = is_selected
         return True
 
     def _construct_apikeys_characters_str(self) -> str:
@@ -332,6 +339,27 @@ class AddEditApikeyDialog(QWizard):
             if s != '': s += ', '
             s += self._apikey.characters[charid]['name']
         return s
+
+    def _recreate_characters_checkboxes(self):
+        # clear characters groupbox from existing checkboxes
+        itemcnt = self.page3.lgb.count()
+        while itemcnt > 0:
+            layout_item = self.page3.lgb.takeAt(0)
+            cb_widget = layout_item.widget()
+            if cb_widget is not None:
+                cb_widget.hide()
+                cb_widget.setParent(None)
+                sip.delete(cb_widget)
+                del cb_widget
+            sip.delete(layout_item)
+            itemcnt -= 1
+        # add character checkboxes to groupbox
+        self.page3.char_checkboxes = []
+        for char in self._apikey.apikey_characters:
+            cb = QCheckBox(char.charname, self.page3)
+            cb.setChecked(char.is_selected)
+            self.page3.lgb.addWidget(cb)
+            self.page3.char_checkboxes.append(cb)
 
     def _key_has_mask(self, bitmask: int) -> bool:
         return (self._apikey.access_mask & bitmask) > 0
@@ -434,6 +462,8 @@ class ApikeysManagerWindow(QWidget):
         apikey = None
         if keyid is not None:
             apikey = self.emcore.savedata.get_apikey_by_keyid(keyid)
+            self._logger.debug('Found existing apikey with primary key = {}'.format(apikey.id))
+            self._logger.debug(' number of chars: {}'.format(len(apikey.apikey_characters)))
         dlg = AddEditApikeyDialog(self, apikey)
         exec_res = dlg.exec_()
         if exec_res == QDialog.Rejected: return
@@ -446,7 +476,7 @@ class ApikeysManagerWindow(QWidget):
         self.start_add_or_edit_apikey()
 
     def on_click_edit_apikey(self, keyid: str):
-        self._logger.debug('keyid = {}'.format(keyid))
+        self._logger.debug('Start edit, keyid = {}'.format(keyid))
         self.start_add_or_edit_apikey(keyid)
 
     def on_click_remove_apikey(self, keyid: str):
