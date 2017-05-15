@@ -124,15 +124,19 @@ class EmApiKeyCharacter(EmModelBase, EmAutoTableAndIdMixin):
     charid = Column(String(32))
     charname = Column(String(64))
     apikeyid = Column(String(32), ForeignKey('emapikey.keyid'))
+    is_selected = Column(Boolean)
     bound_apikey = relationship('EmApiKey', back_populates='apikey_characters')
 
     def __init__(self, char_id: str, char_name: str, keyid: str):
         self.charid = char_id
         self.charname = char_name
         self.apikeyid = keyid
+        self.is_selected = False
 
     def __str__(self) -> str:
         s = 'EmApiKeyCharacter({}, "{}")'.format(self.charid, self.charname)
+        if self.is_selected:
+            s += ' (selected)'
         if self.bound_apikey is not None:
             s += '; apikey='
             s += str(self.bound_apikey)
