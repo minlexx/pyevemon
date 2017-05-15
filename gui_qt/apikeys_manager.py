@@ -480,6 +480,10 @@ class ApikeysManagerWindow(QWidget):
         self.start_add_or_edit_apikey(keyid)
 
     def on_click_remove_apikey(self, keyid: str):
+        answer = QMessageBox.question(self, self.tr('Confirmation'),
+                                      self.tr('Are you sure you want to delete API Key?'))
+        if answer != QMessageBox.Yes:
+            return
         self._logger.debug('keyid = {}'.format(keyid))
         self.emcore.savedata.remove_apikey_by_keyid(keyid)
         self.reload_apikeys()
