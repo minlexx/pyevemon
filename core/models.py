@@ -6,7 +6,8 @@ Models for SQLAlchemy
 from enum import IntEnum, unique
 import re
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 
@@ -78,6 +79,8 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
     access_mask = Column(Integer)
     expire_ts = Column(Integer)
 
+    apikey_characters = relationship('EmApiKeyCharacter')
+
     def __init__(self, keyid: str='', vcode: str='', friendly_name: str=''):
         self.keyid = keyid
         self.vcode = vcode
@@ -115,3 +118,22 @@ class EmApiKey(EmModelBase, EmAutoTableAndIdMixin):
             if other.keyid == self.keyid:
                 return True
         return False
+
+
+class EmApiKeyCharacter(EmModelBase, EmAutoTableAndIdMixin):
+    charid = Column(String(32))
+    charname = Column(String(64))
+    apikeyid = Column(String(32), ForeignKey('emapikey.keyid'))
+    bound_apikey = relationship('EmApiKey', back_populates='apikey_characters')
+
+    def __init__(self, char_id: str, char_name: str, keyid: str):
+        self.charid = char_id
+        self.charname = char_name
+        self.apikeyid = keyid
+
+    def __str__(self) -> str:
+        s = 'EmApiKeyCharacter({}, "{}")'.format(self.charid, self.charname)
+        if self.bound_apikey is not None:
+            s += '; apikey='
+            s += str(self.bound_apikey)
+        return s
