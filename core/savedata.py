@@ -98,6 +98,9 @@ class SaveData:
         return True
 
     def remove_apikey_by_keyid(self, keyid: str):
+        # first manually remove all bound characters
+        self.sql_session.query(EmApiKeyCharacter).filter_by(apikeyid=keyid).delete()
+        # and the remove apikey itself
         self.sql_session.query(EmApiKey).filter_by(keyid=keyid).delete()
         self.sql_session.commit()
 
