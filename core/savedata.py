@@ -5,7 +5,7 @@ import core.logger
 import sqlalchemy
 import sqlalchemy.orm
 
-from core.models import EmModelBase, EmApiKey, EmKeyValue
+from core.models import EmModelBase, EmKeyValue, EmApiKey, EmApiKeyCharacter
 
 
 class SaveData:
@@ -94,9 +94,13 @@ class SaveData:
             apikey.id = res.id  # make sure primary keys match before merging
             self.sql_session.merge(apikey)  # update existing
         self.sql_session.commit()
-        self._logger.debug('SaveData: Stored apikey: {}'.format(apikey))
+        self._logger.debug('SaveData: Stored apikey: {}'.format(str(apikey)))
         return True
 
     def remove_apikey_by_keyid(self, keyid: str):
         self.sql_session.query(EmApiKey).filter_by(keyid=keyid).delete()
         self.sql_session.commit()
+
+    def get_apikey_characters(self, apikey: EmApiKey) -> list:  # List[EmApiKeyCharacter]
+        ret = self.sql_session.query(EmApiKeyCharacter).filter_by(apikeyid=apikey.keyid).all()
+        return ret
