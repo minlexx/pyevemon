@@ -6,12 +6,12 @@ import sip  # for sip.delete, to call C++ destructor
 from PyQt5.QtGui import QFont, QIcon, QCloseEvent
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import QWidget, QLabel, QDialog, QLineEdit,  QPushButton, \
-    QLayout, QLayoutItem, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox, \
-    QWizard, QWizardPage
+    QLayout, QVBoxLayout, QHBoxLayout, QGridLayout, QMessageBox, \
+    QWizard, QWizardPage, QGroupBox, QCheckBox
 
 from core.logger import get_logger
 from core.em_core import get_core_instance, EmCore
-from core.models import EmApiKey, EveApiAccessMask
+from core.models import EmApiKey, EmApiKeyCharacter, EveApiAccessMask
 
 from .utility_widgets import LabelWithOkCancelIcon
 
@@ -175,11 +175,21 @@ class AddEditApikeyDialog(QWizard):
         #
         self.page3 = QWizardPage(self)
         self.page3.l = QVBoxLayout()
+        self.page3.l1 = QHBoxLayout()
+        self.page3.l2 = QHBoxLayout()
+        self.page3.lgb = QVBoxLayout()
         self.page3.setLayout(self.page3.l)
         self.page3.lbl_keyname = QLabel(self.tr('Enter key name:'), self.page3)
         self.page3.le_keyname = QLineEdit(self)
-        self.page3.l.addWidget(self.page3.lbl_keyname)
-        self.page3.l.addWidget(self.page3.le_keyname)
+        self.page3.gb = QGroupBox(self.tr('Select characters to use:'), self.page3)
+        self.page3.gb.setCheckable(False)
+        self.page3.gb.setFlat(False)
+        self.page3.gb.setLayout(self.page3.lgb)
+        self.page3.l1.addWidget(self.page3.lbl_keyname)
+        self.page3.l1.addWidget(self.page3.le_keyname)
+        self.page3.l2.addWidget(self.page3.gb)
+        self.page3.l.addLayout(self.page3.l1)
+        self.page3.l.addLayout(self.page3.l2)
         self.page3.registerField('keyname', self.page3.le_keyname)
 
         self.addPage(self.page1)
@@ -223,6 +233,23 @@ class AddEditApikeyDialog(QWizard):
                 if self._apikey.friendly_name != '':
                     keyname = self._apikey.friendly_name
             self.page3.le_keyname.setText(keyname)
+            # clear characters groupbox from existing checkboxes
+            itemcnt = self.page3.lgb.count()
+            while itemcnt > 0:
+                layout_item = self.page3.lgb.takeAt(0)
+                cb_widget = layout_item.widget()
+                if cb_widget is not None:
+                    cb_widget.hide()
+                    cb_widget.setParent(None)
+                    sip.delete(cb_widget)
+                    del cb_widget
+                sip.delete(layout_item)
+                itemcnt -= 1
+            # add character checkboxes to groupbox
+            for char in self._apikey.apikey_characters:
+                print(char)
+                cb = QCheckBox(char.charname, self.page3)
+                self.page3.lgb.addWidget(cb)
 
     def validateCurrentPage(self) -> bool:
         """ This virtual function is called by QWizard when the user clicks Next or Finish
@@ -252,6 +279,18 @@ class AddEditApikeyDialog(QWizard):
                 if type(keyinfo) == dict:
                     self._apikey.key_type = str(keyinfo['type'])
                     self._apikey.characters = keyinfo['characters']
+                    self._apikey.apikey_characters = []
+                    #
+                    for charid in self._apikey.characters.keys():
+                        charinfo = self._apikey.characters[charid]
+                        # create character object
+                        char = EmApiKeyCharacter(charid, charinfo['name'], self._apikey.keyid)
+                        char.bound_apikey = self._apikey
+                        # add to chars list
+                        # self._apikey.apikey_characters.append(char)
+                        # ^^ not needed, because assignment to char.bound_apikey already appends
+                        #    this caharacter to owner apikey's list of characters (!)
+                    #
                     self._apikey.access_mask = int(keyinfo['access_mask'])
                     self._apikey.expire_ts = keyinfo['expire_ts']
                     self._apikey.expired = False
@@ -284,6 +323,7 @@ class AddEditApikeyDialog(QWizard):
                 self.show_popup_warning(self.tr('Key friendly name should not be empty!'))
                 return False
             self._apikey.friendly_name = keyname
+            # TODO: get checked characters
         return True
 
     def _construct_apikeys_characters_str(self) -> str:
