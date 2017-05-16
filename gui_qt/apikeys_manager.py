@@ -324,6 +324,8 @@ class AddEditApikeyDialog(QWizard):
             for cb in self.page3.char_checkboxes:
                 if isinstance(cb, QCheckBox):
                     charname = cb.text()
+                    if charname.startswith('&'):
+                        charname = charname[1:]
                     is_selected = cb.isChecked()
                     self._logger.debug('Wizard finish: char {} is selected: {}'.format(
                         charname, is_selected))
