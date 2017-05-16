@@ -72,7 +72,7 @@ class SaveData:
                 con.execute('ALTER TABLE emapikey ADD COLUMN expire_ts INTEGER')
                 self._set_db_revision(rev+1)
 
-    def get_apikeys(self) -> list:
+    def get_apikeys(self) -> list:  # List[EmApiKey]
         ret = self.sql_session.query(EmApiKey).all()
         return ret
 
