@@ -11,6 +11,7 @@ from version import get_pyevemon_version
 
 from .api_tester import ApitestMainWindow
 from .apikeys_manager import ApikeysManagerWindow
+from .select_characters import SelectCharactersDlg
 from .tabs import OverviewTab
 
 
@@ -113,3 +114,5 @@ class QtEmMainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_action_select_characters(self, checked: bool = False):
         self._logger.debug('on_action_select_characters')
+        dlg = SelectCharactersDlg(self)
+        dlg.exec_()
