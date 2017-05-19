@@ -49,7 +49,7 @@ class QtEmMainWindow(QMainWindow):
         self.action_add_esi_character.triggered.connect(self.on_action_add_esi_character)
         self.action_select_characters = QAction(self.tr('Select characters...'), self)
         self.action_select_characters.triggered.connect(self.on_action_select_characters)
-        self.action_api_tester = QAction(self.tr('API Tester'), self)
+        self.action_api_tester = QAction(self.tr('XML API Tester'), self)
         self.action_api_tester.triggered.connect(self.on_action_api_tester)
         self.action_about = QAction(self.tr('About...'), self)
         self.action_about.triggered.connect(self.on_action_about)
