@@ -43,8 +43,10 @@ class QtEmMainWindow(QMainWindow):
 
     def create_actions(self):
         # QAction(const QString &text, QObject *parent = nullptr)
-        self.action_manage_apikeys = QAction(self.tr('Manage API keys...'), self)
+        self.action_manage_apikeys = QAction(self.tr('Manage XML API keys...'), self)
         self.action_manage_apikeys.triggered.connect(self.on_action_manage_apikeys)
+        self.action_add_esi_character = QAction(self.tr('Add character with ESI...'), self)
+        self.action_add_esi_character.triggered.connect(self.on_action_add_esi_character)
         self.action_select_characters = QAction(self.tr('Select characters...'), self)
         self.action_select_characters.triggered.connect(self.on_action_select_characters)
         self.action_api_tester = QAction(self.tr('API Tester'), self)
@@ -58,6 +60,7 @@ class QtEmMainWindow(QMainWindow):
         # Construct menu; Api Keys
         self.menubar = self.menuBar()
         menu = QMenu(self.tr('Characters'), self.menubar)
+        menu.addAction(self.action_add_esi_character)
         menu.addAction(self.action_manage_apikeys)
         menu.addAction(self.action_select_characters)
         self.menubar.addMenu(menu)
@@ -112,7 +115,11 @@ class QtEmMainWindow(QMainWindow):
         self.apikeysmgrw.raise_()
 
     @pyqtSlot(bool)
+    def on_action_add_esi_character(self, checked: bool = False):
+        self._logger.debug('Add ESI Character!')
+        pass
+
+    @pyqtSlot(bool)
     def on_action_select_characters(self, checked: bool = False):
-        self._logger.debug('on_action_select_characters')
         dlg = SelectCharactersDlg(self)
         dlg.exec_()
