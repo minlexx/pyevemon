@@ -14,5 +14,6 @@ def get_pyevemon_version():
     #
     # generated from above - do not edit
     rv['version_str'] = '{} version {}'.format(rv['app_name'], rv['version'])
+    rv['useragent_str'] = '{}/{}'.format(rv['app_name'], rv['version'])
     rv['website_url'] = 'https://{0}/'.format(rv['app_domain'])
     return rv
