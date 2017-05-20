@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication
 
 import version
 import core.logger
+import core.esi_handler
 import gui_qt.mainwindow
 
 
@@ -31,6 +32,9 @@ def start_gui():
 
     # print(app.applicationName(), app.applicationDirPath(), app.applicationPid())
     # print(app.applicationDisplayName(), app.applicationVersion())
+
+    # do not forget to start ESI auth callback receiver
+    core.esi_handler.esi_handler_start()
 
     mainwindow = gui_qt.mainwindow.QtEmMainWindow()
     mainwindow.show()
