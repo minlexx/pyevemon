@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtGui import QIcon, QDesktopServices
+from PyQt5.QtCore import pyqtSlot, QUrl
 from PyQt5.QtWidgets import QMenu, QAction, QMainWindow, QMessageBox, QTabWidget
 
 from core.logger import get_logger
 from core.em_core import get_core_instance, get_evelink_version_str
+from core.esi_handler import esi_get_oauth_request_parameters
 
 from version import get_pyevemon_version
 
@@ -117,7 +118,8 @@ class QtEmMainWindow(QMainWindow):
     @pyqtSlot(bool)
     def on_action_add_esi_character(self, checked: bool = False):
         self._logger.debug('Add ESI Character!')
-        pass
+        url = QUrl('https://login.eveonline.com/oauth/authorize/?' + esi_get_oauth_request_parameters())
+        QDesktopServices.openUrl(url)
 
     @pyqtSlot(bool)
     def on_action_select_characters(self, checked: bool = False):
